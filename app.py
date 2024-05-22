@@ -39,7 +39,7 @@ class PredictionForm(FlaskForm):
     existing_source = SelectField("Choose an existing source", choices=[])
     new_source = StringField("Or enter a new source")
 
-    submit = SubmitField("Upload File")
+    submit = SubmitField("Submit")
 
 
 def get_sources(conn):
