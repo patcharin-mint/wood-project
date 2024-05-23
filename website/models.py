@@ -3,6 +3,14 @@ from flask_login import UserMixin
 from sqlalchemy.sql import func
 
 
+class Role(db.Model, UserMixin):
+    role_id = db.Column(db.Integer, primary_key=True)
+    role_name = db.Column(db.String(50), unique=True, nullable=False)
+
+    def get_id(self):
+        return str(self.role_id)
+
+
 class User(db.Model, UserMixin):
     user_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50), unique=True, nullable=False)
@@ -10,6 +18,7 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     user_name = db.Column(db.String(50), unique=True, nullable=False)
+    role_id = db.Column(db.String(50), db.ForeignKey('role.role_id'), nullable=False)
 
     def get_id(self):
         return str(self.user_id)
@@ -25,7 +34,13 @@ class PredictRecord(db.Model):
     prob2 = db.Column(db.String(50), nullable=False)
     prob3 = db.Column(db.String(50), nullable=False)
 
+    def get_id(self):
+        return str(self.record_id)
+
 
 class Source(db.Model):
     source_id = db.Column(db.Integer, primary_key=True)
     source_name = db.Column(db.String(50), unique=True, nullable=False)
+
+    def get_id(self):
+        return str(self.source_id)

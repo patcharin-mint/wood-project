@@ -3,6 +3,7 @@ from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db # =  from __init__.py import db
 from flask_login import login_user, login_required, logout_user, current_user
+from .models import Role
 
 
 auth_blueprint = Blueprint('auth_blueprint', __name__)
@@ -10,6 +11,9 @@ auth_blueprint = Blueprint('auth_blueprint', __name__)
 
 @auth_blueprint.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
+
+    roles = Role.query.all()
+
     if request.method == 'POST':
         email = request.form.get('email')
         first_name = request.form.get('firstName')
@@ -17,6 +21,7 @@ def sign_up():
         user_name = request.form.get('userName')
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
+        role_id = request.form.get('role')
 
         user = User.query.filter_by(email=email).first()
         if user:
@@ -30,14 +35,14 @@ def sign_up():
         elif len(password1) < 7:
             flash('Password must be at least 7 characters.', category='error')
         else:
-            new_user = User(email=email, first_name=first_name, last_name=last_name, user_name=user_name, password=generate_password_hash(password1, method='pbkdf2:sha256'))
+            new_user = User(email=email, first_name=first_name, last_name=last_name, user_name=user_name, password=generate_password_hash(password1, method='pbkdf2:sha256'), role_id=role_id)
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
             flash('Account created!', category='success')
             return redirect(url_for('views_blueprint.home'))
 
-    return render_template("sign_up.html", user=current_user)
+    return render_template("sign_up.html", user=current_user, roles=roles)
 
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
@@ -65,3 +70,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('auth_blueprint.login'))
+
+
+

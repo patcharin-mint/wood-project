@@ -1,2 +1,47 @@
 {% extends "base.html" %} 
-{% block title %}Sign Up{% endblock %} 
+{% block title %}Identification{% endblock %} 
+
+{% block content %}
+    <form method="post" enctype='multipart/form-data'>
+
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.file.label }} <br>
+            {{ form.file(class="file-input") }} 
+        </div>
+        <div>
+            {{ form.existing_wood.label }} <br>
+            {{ form.existing_wood() }} <br><br>
+
+            {{ form.existing_source.label }} <br>
+            {{ form.existing_source() }} <br><br>
+            
+            {{ form.new_source.label }} <br>
+            {{ form.new_source() }} <br><br>
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="submit-button") }}
+        </div>
+    </form>
+
+    {% if image_file %}
+    <div class="text-center">
+        <h2>Uploaded Image</h2>
+        <img src="{{ url_for('static', filename='images/' + image_file) }}" height="400px" width="400px">
+    </div>
+    {% endif %}
+
+    {% if predictions %}
+    <div class="text-center mt-4">
+        <h2>Predictions</h2>
+        <br>
+        <ul>
+            {% for class_name, probability in predictions.items() %}
+            <li>{{ class_name }}: {{ probability }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+{% endblock %}
+

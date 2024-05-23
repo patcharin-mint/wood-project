@@ -62,6 +62,14 @@
             placeholder="Confirm password"
             />
         </div>
+        <div class="form-group">
+            <label for="role">Role</label>
+            <select class="form-control" id="role" name="role" required>
+              {% for role in roles %}
+                <option value="{{ role.role_id }}">{{ role.role_name }}</option>
+              {% endfor %}
+            </select>
+        </div>
         <br />
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
