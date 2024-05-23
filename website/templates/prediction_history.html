@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Prediction History{% endblock %}
+
+{% block content %}
+  <h1>Prediction History</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Date</th>
+        <th scope="col">Source</th>
+        <th scope="col">Wood</th>
+        <th scope="col">File IMG</th>
+        <th scope="col">Prediction Top1</th>
+        <th scope="col">Prediction Top2</th>
+        <th scope="col">Prediction Top3</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in prediction_history %}
+        <tr>
+          <th scope="row">{{ record.record_id }}</th>
+          <td>{{ record.date }}</td>
+          <td>{{ record.source.source_name }}</td>
+          <td>{{ record.wood.wood_name}}</td>
+          <td><img src="{{ url_for('static', filename='images/' + record.file_name) }}" class="card-img-top" alt="Prediction Image"></td>
+          <td>{{ record.prob1  }}</td>
+          <td>{{ record.prob2  }}</td>
+          <td>{{ record.prob3  }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

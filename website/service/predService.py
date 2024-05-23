@@ -4,11 +4,13 @@ import numpy as np
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, FileField, SelectField, StringField
 from flask_wtf.file import FileAllowed, FileRequired
-from ..models import Source
+from ..models import Source, Wood
+import locale
 
 
 CLASS_NAMES = ['ching', 'euca', 'kapi', 'payung', 'pradu', 'sak', 'takian', 'teng', 'yangna', 'yangpara']
-CLASS_NAMES_TH = ['ชิงชัน', 'ยูคาลิปตัส', 'กะพี้เขาควาย', 'พะยูง', 'ประดู่', 'สัก', 'ตะเคียน', 'เต็ง', 'ยางนา', 'ยางพารา']
+CLASS_NAMES_TH = ['ชิงชัน (Dalbergia oliveri)', 'ยูคาลิปตัส (Eucalyptus globulus)', 'กะพี้เขาควาย (Dalbergia cultrata Graham ex Benth.)', 'พะยูง (Dalbergia cochinchinensis)', 'ประดู่ (Pterocarpus macrocarpus)', 'สัก (Tectona grandis)', 'ตะเคียน (Hopea odorata)', 'เต็ง (Shorea obtusa Wall)', 'ยางนา (Dipterocarpus alatus)', 'ยางพารา (Hevea brasiliensis)']
+
 model = load_model(r'C:\Users\user\Downloads\project_new\wood-project_v3\no-non\VGG19.keras')
 
 
@@ -37,18 +39,6 @@ def predictTopN(img_path, n):
 	return dict(zip(top_classes, top_probabilities))
 
 
-# class PredictionForm(FlaskForm):
-#     # InputRequired() เป็นตัวตรวจสอบว่าฟิลด์ว่างเปล่าหรือไม่
-#     file = FileField("Photo", validators=[
-#         FileRequired(),
-#         FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')]
-#         )
-#         # ฟิลด์การเลือกพันธุ์ไม้
-#     class_name = SelectField('Choose the wood species', choices=[(name, name) for name in CLASS_NAMES_TH])
-#     source = SelectField("Select Source", choices=[], coerce=int, render_kw={"id": "source"})
-#     new_source = StringField("New Source (if not in list)")
-#     submit = SubmitField("Upload File")
-
 
 class PredictionForm(FlaskForm):
     # InputRequired() เป็นตัวตรวจสอบว่าฟิลด์ว่างเปล่าหรือไม่
@@ -67,10 +57,15 @@ class PredictionForm(FlaskForm):
 def createPredForm():
     form = PredictionForm()
 
-    sources = [(source.source_id, source.source_name) for source in Source.query.all()]
-    print(sources)
-    form.existing_source.choices = sources
-    form.existing_wood.choices = [(wood, wood) for wood in CLASS_NAMES_TH]
+    # ตั้งค่า locale เป็น 'th_TH.UTF-8' เพื่อให้ Python รู้จักการเรียงลำดับภาษาไทย
+    locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
+
+    # กำหนด key ในการเรียงลำดับตามตัวอักษรภาษาไทย
+    sorted_sources = sorted(Source.query.all(), key=lambda x: locale.strxfrm(x.source_name))
+    sorted_woods = sorted(Wood.query.all(), key=lambda x: locale.strxfrm(x.wood_name))
+
+    form.existing_source.choices = [(source.source_id, source.source_name) for source in sorted_sources]
+    form.existing_wood.choices = [(wood.wood_id, wood.wood_name) for wood in sorted_woods]
 
     return form
 

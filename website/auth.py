@@ -3,14 +3,24 @@ from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db # =  from __init__.py import db
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import Role
+from .models import Role, Source, Wood
+from werkzeug.utils import secure_filename
+import os
 
 
 auth_blueprint = Blueprint('auth_blueprint', __name__)
 
+UPLOAD_FOLDER = 'website/static/images'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @auth_blueprint.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
+
+
 
     roles = Role.query.all()
 
@@ -35,11 +45,26 @@ def sign_up():
         elif len(password1) < 7:
             flash('Password must be at least 7 characters.', category='error')
         else:
-            new_user = User(email=email, first_name=first_name, last_name=last_name, user_name=user_name, password=generate_password_hash(password1, method='pbkdf2:sha256'), role_id=role_id)
+            filename = None
+            if 'profile_picture' in request.files:
+                profile_picture = request.files['profile_picture']
+            
+                if profile_picture and allowed_file(profile_picture.filename):
+                    filename = secure_filename(profile_picture.filename)
+                    filename = f"{user_name}_profile.jpg"
+
+                    file_path = os.path.join(UPLOAD_FOLDER, filename)
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+
+                    profile_picture.save(file_path)
+
+            new_user = User(email=email, first_name=first_name, last_name=last_name, user_name=user_name, password=generate_password_hash(password1, method='pbkdf2:sha256'), role_id=role_id, profile_picture=filename)
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
             flash('Account created!', category='success')
+
             return redirect(url_for('views_blueprint.home'))
 
     return render_template("sign_up.html", user=current_user, roles=roles)

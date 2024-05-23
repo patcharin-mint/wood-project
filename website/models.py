@@ -1,14 +1,30 @@
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 
-class Role(db.Model, UserMixin):
+class Role(db.Model):
     role_id = db.Column(db.Integer, primary_key=True)
     role_name = db.Column(db.String(50), unique=True, nullable=False)
 
     def get_id(self):
         return str(self.role_id)
+    
+    def get_name(self):
+        return str(self.role_name)
+    
+
+class Wood(db.Model):
+    wood_id = db.Column(db.Integer, primary_key=True)
+    wood_name = db.Column(db.String(50), unique=True, nullable=False)
+    wood_nickname = db.Column(db.String(50), unique=True, nullable=False)
+
+    def get_id(self):
+        return str(self.wood_id)
+    
+    def get_name(self):
+        return str(self.wood_name)
 
 
 class User(db.Model, UserMixin):
@@ -19,6 +35,8 @@ class User(db.Model, UserMixin):
     last_name = db.Column(db.String(50), nullable=False)
     user_name = db.Column(db.String(50), unique=True, nullable=False)
     role_id = db.Column(db.String(50), db.ForeignKey('role.role_id'), nullable=False)
+    role = db.relationship('Role', backref='users') 
+    profile_picture = db.Column(db.String(100), unique=True)
 
     def get_id(self):
         return str(self.user_id)
@@ -29,10 +47,15 @@ class PredictRecord(db.Model):
     date = db.Column(db.DateTime(timezone=True), default=func.now(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     source_id = db.Column(db.Integer, db.ForeignKey('source.source_id'), nullable=False)
+    wood_id = db.Column(db.Integer, db.ForeignKey('wood.wood_id'), nullable=False) 
     file_name = db.Column(db.String(100), unique=True, nullable=False)
     prob1 = db.Column(db.String(50), nullable=False)
     prob2 = db.Column(db.String(50), nullable=False)
     prob3 = db.Column(db.String(50), nullable=False)
+
+    user = db.relationship('User')
+    source = db.relationship('Source')
+    wood = db.relationship('Wood')
 
     def get_id(self):
         return str(self.record_id)
@@ -44,3 +67,6 @@ class Source(db.Model):
 
     def get_id(self):
         return str(self.source_id)
+    
+    def get_name(self):
+        return str(self.source_name)
