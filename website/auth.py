@@ -20,8 +20,6 @@ def allowed_file(filename):
 @auth_blueprint.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
 
-
-
     roles = Role.query.all()
 
     if request.method == 'POST':

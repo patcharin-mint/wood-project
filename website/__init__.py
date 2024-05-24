@@ -21,9 +21,11 @@ def create_app():
 
     from .views import views_blueprint
     from .auth import auth_blueprint
+    from .manages import manage_blueprint
 
     app.register_blueprint(views_blueprint, url_prefix='/')
     app.register_blueprint(auth_blueprint, url_prefix='/')
+    app.register_blueprint(manage_blueprint, url_prefix='/')
 
     from .models import User
 

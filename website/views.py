@@ -95,3 +95,11 @@ def prediction_history():
 @login_required
 def profile():
     return render_template("profile.html", user=current_user)
+
+
+
+@views_blueprint.route('/admin_mangement')
+@login_required
+def management():
+    return render_template("admin_mangement.html", user=current_user)
+
