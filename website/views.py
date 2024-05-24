@@ -19,7 +19,7 @@ def home():
 
 
 @views_blueprint.route('/wood-identification', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def prediction():
 
     form = createPredForm()
@@ -50,11 +50,17 @@ def prediction():
                 form = createPredForm()
         else:
             selected_source = int(selected_source)
+        if current_user.is_authenticated:
+            new_filename = f"{current_user.user_name}_predict_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}.jpg"
+            filepath = os.path.join(UPLOAD_FOLDER, new_filename)
+            file.save(filepath)
+        else:
+            new_filename = "temp.jpg"
+            filepath = os.path.join(UPLOAD_FOLDER, new_filename)
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            file.save(filepath)
 
-        new_filename = f"{current_user.user_name}_predict_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}.jpg"
-        filepath = os.path.join(UPLOAD_FOLDER, new_filename)
-        file.save(filepath)
-        
         # result prediction in form dictionary 
         pred = predictTopN(filepath, 3)
 
@@ -65,16 +71,19 @@ def prediction():
         p1 = p1_wood.wood_name 
         p2 = p2_wood.wood_name
         p3 = p3_wood.wood_name 
-
-        record = PredictRecord(user_id=current_user.user_id,
-                               source_id=selected_source,
-                               wood_id = selected_wood,
-                               file_name=new_filename,
-                               prob1= p1 + ' - ' + pred.get(list(pred.keys())[0]),
-                               prob2= p2 + ' - ' + pred.get(list(pred.keys())[1]),
-                               prob3= p3 + ' - ' + pred.get(list(pred.keys())[2]))
-        db.session.add(record)
-        db.session.commit()
+        
+        if current_user.is_authenticated:
+            record = PredictRecord(
+                user_id=current_user.user_id,
+                source_id=selected_source,
+                wood_id=selected_wood,
+                file_name=new_filename,
+                prob1=p1 + ' - ' + pred.get(list(pred.keys())[0]),
+                prob2=p2 + ' - ' + pred.get(list(pred.keys())[1]),
+                prob3=p3 + ' - ' + pred.get(list(pred.keys())[2])
+            )
+            db.session.add(record)
+            db.session.commit()
 
         return render_template("predict.html", form=form, image_file=new_filename, predictions=pred, source=selected_source, user=current_user)
     else:
