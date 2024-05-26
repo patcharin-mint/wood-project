@@ -6,6 +6,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from .models import Role, Source, Wood
 from werkzeug.utils import secure_filename
 import os
+import uuid
 
 
 auth_blueprint = Blueprint('auth_blueprint', __name__)
@@ -15,6 +16,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 
 @auth_blueprint.route('/sign-up', methods=['GET', 'POST'])
@@ -31,17 +33,22 @@ def sign_up():
         password2 = request.form.get('password2')
         role_id = request.form.get('role')
 
-        user = User.query.filter_by(email=email).first()
-        if user:
-            flash('Email already exists.', category='error')
-        elif len(email) < 4:
-            flash('Email must be greater than 3 characters.', category='error')
-        elif len(first_name) < 2:
-            flash('First name must be greater than 1 character.', category='error')
+        if User.query.filter_by(email=email).first():
+            flash('Email นี้มีผู้ใช้แล้ว', category='error')
+        elif User.query.filter_by(user_name=user_name).first():
+            flash('Username นี้มีผู้ใช้แล้ว', category='error')
+        elif len(email) < 4 or len(email) > 50:
+            flash('Email ต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร', category='error')
+        elif len(user_name) < 4 or len(user_name) > 50:
+            flash('Username ต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร', category='error')
+        elif len(first_name) < 2  or len(first_name) > 50:
+            flash('ชื่อจริงต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร', category='error')
+        elif len(last_name) < 2  or len(last_name) > 50:
+            flash('นามสกุลต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร', category='error')
         elif password1 != password2:
-            flash('Passwords don\'t match.', category='error')
-        elif len(password1) < 7:
-            flash('Password must be at least 7 characters.', category='error')
+            flash('กรุณาใส่ Password ให้ตรงกัน', category='error')
+        elif len(password1) < 7 or len(password1) > 50:
+            flash('Password ต้องมีขนาดตั้งแต่ 7 - 50 ตัวอักษร', category='error')
         else:
             filename = None
             if 'profile_picture' in request.files:
@@ -52,9 +59,6 @@ def sign_up():
                     filename = f"{user_name}_profile.jpg"
 
                     file_path = os.path.join(UPLOAD_FOLDER, filename)
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-
                     profile_picture.save(file_path)
 
             new_user = User(email=email, first_name=first_name, last_name=last_name, user_name=user_name, password=generate_password_hash(password1, method='pbkdf2:sha256'), role_id=role_id, profile_picture=filename)
@@ -66,6 +70,7 @@ def sign_up():
             return redirect(url_for('views_blueprint.home'))
 
     return render_template("sign_up.html", user=current_user, roles=roles)
+
 
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
@@ -88,11 +93,79 @@ def login():
     return render_template("login.html", user=current_user)
 
 
+
 @auth_blueprint.route('/logout')
 @login_required # ต้อง log in ก่อนถึงจะ log out ได้
 def logout():
     logout_user()
     return redirect(url_for('auth_blueprint.login'))
+
+
+
+@auth_blueprint.route('/update-profile', methods=['POST'])
+@login_required
+def update_profile():
+    user = current_user
+
+    can_update = False
+
+    email = request.form.get('email')
+    first_name = request.form.get('firstName')
+    last_name = request.form.get('lastName')
+    user_name = request.form.get('userName')
+    role_id = request.form.get('role')
+
+    if User.query.filter(User.email == email, User.user_id != user.user_id).first():
+        flash('Email นี้มีผู้ใช้แล้ว', category='error')
+    elif User.query.filter(User.user_name == user_name, User.user_id != user.user_id).first():
+        flash('Username นี้มีผู้ใช้แล้ว', category='error')
+    elif len(email) < 4 or len(email) > 50:
+        flash('Email ต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร', category='error')
+    elif len(first_name) < 2  or len(first_name) > 50:
+        flash('ชื่อจริงต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร', category='error')
+    elif len(last_name) < 2  or len(last_name) > 50:
+        flash('นามสกุลต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร', category='error')
+    elif user_name != None:
+        if len(user_name) < 4 or len(user_name) > 50:
+            flash('Username ต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร', category='error')
+        else:
+            can_update = True
+    else:
+        can_update = True
+
+    if can_update:
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+
+        if user_name != None:
+            print(user_name)
+            user.user_name = user_name
+
+        if role_id != None:
+            print(role_id)
+            user.role_id = role_id
+
+
+        if 'profile_picture' in request.files:
+            profile_picture = request.files['profile_picture']
+            if profile_picture and allowed_file(profile_picture.filename):
+                filename = secure_filename(profile_picture.filename)
+                filename = f"{user.user_name}_profile.jpg"
+
+                file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+
+                profile_picture.save(file_path)
+                user.profile_picture = filename
+        
+        db.session.commit()
+        flash('Profile updated successfully!', category='success')
+
+    return redirect(url_for('views_blueprint.profile'))
+
 
 
 

@@ -70,7 +70,9 @@
             <label for="role">Role</label>
             <select class="form-control" id="role" name="role" required>
               {% for role in roles %}
-                <option value="{{ role.role_id }}">{{ role.role_name }}</option>
+                {% if role.role_name != "Admin" %}
+                    <option value="{{ role.role_id }}">{{ role.role_name }}</option>
+                {% endif %}
               {% endfor %}
             </select>
         </div>

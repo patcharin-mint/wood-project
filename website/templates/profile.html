@@ -3,13 +3,73 @@
 
 {% block content %}
     <h1>Profile</h1>
-    {% if user.profile_picture %}
-        <img src="{{ url_for('static', filename='images/' + user.profile_picture)}}" height="400px" width="400px">
+
+    {% if edit %}
+        <form method="POST" action="{{ url_for('auth_blueprint.update_profile') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="profilePicture">Profile Picture:</label>
+                <input type="file" class="form-control-file" id="profile_picture" name="profile_picture" onchange="previewProfilePicture(event)">
+                <img id="profile_picture_preview" src="{{ url_for('static', filename='images/' + user.profile_picture if user.profile_picture else 'images/default_profile.jpg') }}" height="400px" width="400px" style="display:block; margin-top:10px;">
+            </div>
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" class="form-control" id="firstName" name="firstName" value="{{ user.first_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" class="form-control" id="lastName" name="lastName" value="{{ user.last_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+            </div>
+            
+            {% if user.role.role_name != 'Admin' %}
+            <div class="form-group">
+                <label for="userName">Username:</label>
+                <input type="text" class="form-control" id="userName" name="userName" value="{{ user.user_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select class="form-control" id="role" name="role" required>
+                  {% for role in roles %}
+                    {% if role.role_name != "Admin" %}
+                        <option value="{{ role.role_id }}">{{ role.role_name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+
+
     {% else %}
-        <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" height="400px" width="400px">
+        {% if user.profile_picture %}
+            <img src="{{ url_for('static', filename='images/' + user.profile_picture)}}" height="400px" width="400px">
+        {% else %}
+            <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" height="400px" width="400px">
+        {% endif %}
+        <p>Welcome, {{ user.first_name }} {{ user.last_name }}!</p>
+        <p>Email: {{ user.email }}</p>
+        <p>Username: {{ user.user_name }}</p>
+        <p>Role: {{ user.role.role_name }}</p>
+        <form method="POST">
+            <button type="submit" class="btn btn-primary">แก้ไข Profile</button>
+        </form>
+        
     {% endif %}
-    <p>Welcome, {{ user.first_name }} {{ user.last_name }}!</p>
-    <p>Email: {{ user.email }}</p>
-    <p>Username: {{ user.user_name }}</p>
-    <p>Role: {{ user.role.role_name }}</p>
+
+    <script>
+        function previewProfilePicture(event) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById('profile_picture_preview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+
 {% endblock %}

@@ -30,7 +30,7 @@ class Wood(db.Model):
 class User(db.Model, UserMixin):
     user_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(50), nullable=False)
+    password = db.Column(db.String(256), nullable=False)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     user_name = db.Column(db.String(50), unique=True, nullable=False)
@@ -46,6 +46,7 @@ class PredictRecord(db.Model):
     record_id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(timezone=True), default=func.now(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user_role_id = db.Column(db.Integer, db.ForeignKey('user.role_id'), nullable=False)
     source_id = db.Column(db.Integer, db.ForeignKey('source.source_id'), nullable=False)
     wood_id = db.Column(db.Integer, db.ForeignKey('wood.wood_id'), nullable=False) 
     file_name = db.Column(db.String(100), unique=True, nullable=False)
@@ -53,9 +54,9 @@ class PredictRecord(db.Model):
     prob2 = db.Column(db.String(50), nullable=False)
     prob3 = db.Column(db.String(50), nullable=False)
 
-    user = db.relationship('User')
-    source = db.relationship('Source')
-    wood = db.relationship('Wood')
+    user = db.relationship('User', foreign_keys=[user_id])
+    source = db.relationship('Source', foreign_keys=[source_id])
+    wood = db.relationship('Wood', foreign_keys=[wood_id])
 
     def get_id(self):
         return str(self.record_id)

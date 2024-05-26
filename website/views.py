@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from .service.predService import predictTopN, CLASS_NAMES, PredictionForm, CLASS_NAMES_TH, createPredForm
 from werkzeug.utils import secure_filename
 import os
 from . import db
-from .models import Source, PredictRecord, User, Wood
+from .models import Source, PredictRecord, User, Wood, Role
 import datetime
 
 
@@ -51,7 +51,7 @@ def prediction():
         else:
             selected_source = int(selected_source)
         if current_user.is_authenticated:
-            new_filename = f"{current_user.user_name}_predict_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}.jpg"
+            new_filename = f"{current_user.user_name}_predict_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%S')}.jpg"
             filepath = os.path.join(UPLOAD_FOLDER, new_filename)
             file.save(filepath)
         else:
@@ -75,6 +75,7 @@ def prediction():
         if current_user.is_authenticated:
             record = PredictRecord(
                 user_id=current_user.user_id,
+                user_role_id=current_user.role.role_id,
                 source_id=selected_source,
                 wood_id=selected_wood,
                 file_name=new_filename,
@@ -100,10 +101,13 @@ def prediction_history():
 
 
 
-@views_blueprint.route('/profile')
+@views_blueprint.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    return render_template("profile.html", user=current_user)
+    if request.method == 'POST':
+        roles = Role.query.all()
+        return render_template("profile.html", user=current_user, edit=True, roles=roles)
+    return render_template("profile.html", user=current_user, edit=False)
 
 
 
@@ -111,4 +115,6 @@ def profile():
 @login_required
 def management():
     return render_template("admin_mangement.html", user=current_user)
+
+
 
