@@ -10,6 +10,7 @@
         <th scope="col">#</th>
         <th scope="col">Date</th>
         <th scope="col">Source</th>
+        <th scope="col">Role</th>
         <th scope="col">Wood</th>
         <th scope="col">File IMG</th>
         <th scope="col">Prediction Top1</th>
@@ -21,8 +22,9 @@
       {% for record in prediction_history %}
         <tr>
           <th scope="row">{{ record.record_id }}</th>
-          <td>{{ record.date }}</td>
+          <td>{{ record.date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
           <td>{{ record.source.source_name }}</td>
+          <td>{{ record.role.role_name }}</td>
           <td>{{ record.wood.wood_name}}</td>
           <td><img src="{{ url_for('static', filename='images/' + record.file_name) }}" class="card-img-top" alt="Prediction Image"></td>
           <td>{{ record.prob1  }}</td>

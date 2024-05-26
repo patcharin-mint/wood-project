@@ -26,10 +26,6 @@
             
             {% if user.role.role_name != 'Admin' %}
             <div class="form-group">
-                <label for="userName">Username:</label>
-                <input type="text" class="form-control" id="userName" name="userName" value="{{ user.user_name }}" required>
-            </div>
-            <div class="form-group">
                 <label for="role">Role</label>
                 <select class="form-control" id="role" name="role" required>
                   {% for role in roles %}

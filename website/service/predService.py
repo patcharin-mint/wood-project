@@ -13,6 +13,9 @@ CLASS_NAMES_TH = ['ชิงชัน (Dalbergia oliveri)', 'ยูคาลิ�
 
 model = load_model(r'C:\Users\user\Downloads\project_new\wood-project_v3\no-non\VGG19.keras')
 
+# ตั้งค่า locale เป็น 'th_TH.UTF-8' เพื่อให้ Python รู้จักการเรียงลำดับภาษาไทย
+locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
+
 
 
 def preprocess_image(img_path):
@@ -56,9 +59,6 @@ class PredictionForm(FlaskForm):
 
 def createPredForm():
     form = PredictionForm()
-
-    # ตั้งค่า locale เป็น 'th_TH.UTF-8' เพื่อให้ Python รู้จักการเรียงลำดับภาษาไทย
-    locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
 
     # กำหนด key ในการเรียงลำดับตามตัวอักษรภาษาไทย
     sorted_sources = sorted(Source.query.all(), key=lambda x: locale.strxfrm(x.source_name))

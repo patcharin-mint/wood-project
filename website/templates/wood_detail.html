@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Prediction History{% endblock %}
+
+{% block content %}
+  <h1>Tree Information</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Wood</th>
+        <th scope="col">File IMG</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>{{ wood.wood_name}}</td>
+          <td><img src="{{ url_for('static', filename='images/tree_icon.png') }}" class="card-img-top" alt="Prediction Image"></td>
+        </tr>
+    </tbody>
+  </table>
+{% endblock %}

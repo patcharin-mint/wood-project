@@ -6,11 +6,19 @@ import os
 from . import db
 from .models import Source, PredictRecord, User, Wood, Role
 import datetime
+import locale
 
 
 views_blueprint = Blueprint('views_blueprint', __name__)
 
 UPLOAD_FOLDER = 'website/static/images'
+
+# ตั้งค่า locale เป็น 'th_TH.UTF-8' เพื่อให้ Python รู้จักการเรียงลำดับภาษาไทย
+locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
+
+
+
+# route
 
 @views_blueprint.route('/', methods=['GET'])
 @login_required
@@ -27,14 +35,7 @@ def prediction():
     # กดปุ่ม submit = post
     if form.validate_on_submit():
         file = form.file.data
-
         selected_wood = form.existing_wood.data
-        print('selected wood')
-        print(selected_wood)
-        wood = Wood.query.get(selected_wood)
-        print("The name of the selected wood is:", wood.wood_name)
-
-
         selected_source = form.existing_source.data
         new_source = form.new_source.data.strip()
 
@@ -48,6 +49,7 @@ def prediction():
                 selected_source = new_source_object.source_id
 
                 form = createPredForm()
+                form.new_source.data = ''
         else:
             selected_source = int(selected_source)
         if current_user.is_authenticated:
@@ -75,6 +77,7 @@ def prediction():
         if current_user.is_authenticated:
             record = PredictRecord(
                 user_id=current_user.user_id,
+                date=datetime.datetime.now(),
                 user_role_id=current_user.role.role_id,
                 source_id=selected_source,
                 wood_id=selected_wood,
@@ -105,9 +108,33 @@ def prediction_history():
 @login_required
 def profile():
     if request.method == 'POST':
-        roles = Role.query.all()
-        return render_template("profile.html", user=current_user, edit=True, roles=roles)
+
+        # กำหนด key ในการเรียงลำดับตามตัวอักษรภาษาไทย
+        sorted_roles = sorted(Role.query.all(), key=lambda x: locale.strxfrm(x.role_name))
+
+        return render_template("profile.html", user=current_user, edit=True, roles=sorted_roles)
     return render_template("profile.html", user=current_user, edit=False)
+
+
+
+@views_blueprint.route('/woods-info', methods=['GET', 'POST'])
+def woods_info():
+    search_query = request.form.get('search', '')
+
+    if search_query:
+        sorted_woods = sorted(Wood.query.filter(Wood.wood_name.ilike(f'%{search_query}%')).all(), key=lambda x: locale.strxfrm(x.wood_name))
+    else:
+        sorted_woods = sorted(Wood.query.all(), key=lambda x: locale.strxfrm(x.wood_name))
+    return render_template("woods_info.html", user=current_user, woods=sorted_woods)
+
+
+
+@views_blueprint.route('/woods-info/<int:wood_id>')
+def wood_detail(wood_id):
+    # ถ้าไม่มีข้อมูลที่ตรงกันในฐานข้อมูล จะส่ง HTTP 404 error response โดยอัตโนมัติ
+    wood = Wood.query.get_or_404(wood_id)
+    return render_template('wood_detail.html', wood=wood, user=current_user)
+
 
 
 
