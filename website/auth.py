@@ -73,6 +73,7 @@ def sign_up():
                     file_path = os.path.join(UPLOAD_FOLDER, filename)
                     profile_picture.save(file_path)
 
+
             new_user = User(email=email, first_name=first_name, last_name=last_name, user_name=user_name, password=generate_password_hash(password1, method='pbkdf2:sha256'), role_id=role_id, profile_picture=filename)
             db.session.add(new_user)
             db.session.commit()

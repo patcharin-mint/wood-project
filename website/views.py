@@ -38,60 +38,64 @@ def prediction():
         selected_wood = form.existing_wood.data
         selected_source = form.existing_source.data
         new_source = form.new_source.data.strip()
+        if len(new_source) < 4 or len(new_source) > 50:
+            form.new_source.data = ''
+            flash('ชื่อแหล่งที่มาต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร', category='error')
+        else:
 
-        # ถ้า new_source มีค่า ให้เพิ่มลงในฐานข้อมูล
-        if new_source:
-            existing_source = Source.query.filter_by(source_name=new_source).first()
-            if not existing_source:
-                new_source_object = Source(source_name=new_source)
-                db.session.add(new_source_object)
+            if current_user.is_authenticated:
+                new_filename = f"{current_user.user_name}_predict_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%S')}.jpg"
+                filepath = os.path.join(UPLOAD_FOLDER, new_filename)
+                file.save(filepath)
+            else:
+                new_filename = "temp.jpg"
+                filepath = os.path.join(UPLOAD_FOLDER, new_filename)
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                file.save(filepath)
+
+            # ถ้า new_source มีค่า ให้เพิ่มลงในฐานข้อมูล
+            if new_source and current_user.is_authenticated:
+                existing_source = Source.query.filter_by(source_name=new_source).first()
+                if not existing_source:
+                    new_source_object = Source(source_name=new_source)
+                    db.session.add(new_source_object)
+                    db.session.commit()
+                    selected_source = new_source_object.source_id
+
+                    form = createPredForm()
+            else:
+                selected_source = int(selected_source)
+            
+            form.new_source.data = ''
+
+            # result prediction in form dictionary 
+            pred = predictTopN(filepath, 3)
+
+            p1_wood = Wood.query.filter_by(wood_nickname=list(pred.keys())[0]).first()
+            p2_wood = Wood.query.filter_by(wood_nickname=list(pred.keys())[1]).first()
+            p3_wood = Wood.query.filter_by(wood_nickname=list(pred.keys())[2]).first()
+
+            p1 = p1_wood.wood_name 
+            p2 = p2_wood.wood_name
+            p3 = p3_wood.wood_name 
+            
+            if current_user.is_authenticated:
+                record = PredictRecord(
+                    user_id=current_user.user_id,
+                    date=datetime.datetime.now(),
+                    user_role_id=current_user.role.role_id,
+                    source_id=selected_source,
+                    wood_id=selected_wood,
+                    file_name=new_filename,
+                    prob1=p1 + ' - ' + pred.get(list(pred.keys())[0]),
+                    prob2=p2 + ' - ' + pred.get(list(pred.keys())[1]),
+                    prob3=p3 + ' - ' + pred.get(list(pred.keys())[2])
+                )
+                db.session.add(record)
                 db.session.commit()
-                selected_source = new_source_object.source_id
-
-                form = createPredForm()
-                form.new_source.data = ''
-        else:
-            selected_source = int(selected_source)
-        if current_user.is_authenticated:
-            new_filename = f"{current_user.user_name}_predict_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%S')}.jpg"
-            filepath = os.path.join(UPLOAD_FOLDER, new_filename)
-            file.save(filepath)
-        else:
-            new_filename = "temp.jpg"
-            filepath = os.path.join(UPLOAD_FOLDER, new_filename)
-            if os.path.exists(filepath):
-                os.remove(filepath)
-            file.save(filepath)
-
-        # result prediction in form dictionary 
-        pred = predictTopN(filepath, 3)
-
-        p1_wood = Wood.query.filter_by(wood_nickname=list(pred.keys())[0]).first()
-        p2_wood = Wood.query.filter_by(wood_nickname=list(pred.keys())[1]).first()
-        p3_wood = Wood.query.filter_by(wood_nickname=list(pred.keys())[2]).first()
-
-        p1 = p1_wood.wood_name 
-        p2 = p2_wood.wood_name
-        p3 = p3_wood.wood_name 
+            return render_template("predict.html", form=form, image_file=new_filename, predictions=pred, source=selected_source, user=current_user)
         
-        if current_user.is_authenticated:
-            record = PredictRecord(
-                user_id=current_user.user_id,
-                date=datetime.datetime.now(),
-                user_role_id=current_user.role.role_id,
-                source_id=selected_source,
-                wood_id=selected_wood,
-                file_name=new_filename,
-                prob1=p1 + ' - ' + pred.get(list(pred.keys())[0]),
-                prob2=p2 + ' - ' + pred.get(list(pred.keys())[1]),
-                prob3=p3 + ' - ' + pred.get(list(pred.keys())[2])
-            )
-            db.session.add(record)
-            db.session.commit()
-
-        return render_template("predict.html", form=form, image_file=new_filename, predictions=pred, source=selected_source, user=current_user)
-    else:
-        print('not in post')
     return render_template("predict.html", form=form, user=current_user)
 
 
