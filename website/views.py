@@ -38,7 +38,7 @@ def prediction():
         selected_wood = form.existing_wood.data
         selected_source = form.existing_source.data
         new_source = form.new_source.data.strip()
-        if len(new_source) < 4 or len(new_source) > 50:
+        if new_source and len(new_source) < 4 or len(new_source) > 50:
             form.new_source.data = ''
             flash('ชื่อแหล่งที่มาต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร', category='error')
         else:
