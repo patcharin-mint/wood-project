@@ -1,6 +1,26 @@
-{% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
-    %}
-    <form method="POST">
+{% extends "base.html" %} {% block title %}Login{% endblock %} 
+
+{% block content%}
+
+<script src="https://www.google.com/recaptcha/api.js"></script>
+
+<script>
+  function onSubmit(token) {
+    document.getElementById("log-in-form").submit();
+  }
+
+  // function onClick(e) {
+  //       e.preventDefault();
+  //       grecaptcha.ready(function() {
+  //         grecaptcha.execute('{{site_key}}', {action: 'submit'}).then(function(token) {
+  //             // Add your logic to submit to your backend server here.
+  //         });
+  //       });
+  //     }
+</script>
+
+
+    <form id="log-in-form" action="{{ url_for('auth_blueprint.login') }}"  method="POST">
       <h3 align="center">Login</h3>
       <div class="form-group">
         <label for="email">Email Address</label>
@@ -23,6 +43,8 @@
         />
       </div>
       <br />
-      <button type="submit" class="btn btn-primary">Login</button>
+      <button type="submit" class="g-recaptcha btn btn-primary"  data-sitekey={{site_key}} 
+          data-callback='onSubmit' 
+          data-action='submit'>Login...</button>
     </form>
     {% endblock %}

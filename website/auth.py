@@ -1,12 +1,13 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, abort
 from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db # =  from __init__.py import db
+from . import db, create_app # =  from __init__.py import db
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import Role, Source, Wood
 from werkzeug.utils import secure_filename
 import os
 import locale
+import requests
 
 
 auth_blueprint = Blueprint('auth_blueprint', __name__)
@@ -37,6 +38,7 @@ def sign_up():
     sorted_roles = sorted(Role.query.all(), key=lambda x: locale.strxfrm(x.role_name))
 
     if request.method == 'POST':
+
         email = request.form.get('email')
         first_name = request.form.get('firstName')
         last_name = request.form.get('lastName')
@@ -89,6 +91,17 @@ def sign_up():
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+
+        print(request.form)
+
+        secret_response = request.form['g-recaptcha-response']
+
+        verify_response = requests.post(url=f"{create_app().config['VERIFY_URL']}?secret={create_app().config['RECAPTCHA_SECRET_KEY']}&response={secret_response}").json()
+
+
+        if verify_response['success'] == False or verify_response['score'] < 0.5:
+            abort(401)
+
         email = request.form.get('email')
         password = request.form.get('password')
 
@@ -103,7 +116,7 @@ def login():
         else:
             flash('Email does not exist.', category='error')
 
-    return render_template("login.html", user=current_user)
+    return render_template("login.html", user=current_user, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
 
 
 

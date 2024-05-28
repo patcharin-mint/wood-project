@@ -15,6 +15,10 @@ def create_app():
     app.config['SECRET_KEY'] = 'KeY'
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+    app.config['RECAPTCHA_SITE_KEY'] = '6Lf07ugpAAAAAGawO9tMxqItiZBQGPOZJwsGs1IW'
+    app.config['RECAPTCHA_SECRET_KEY'] = '6Lf07ugpAAAAAD1BnoNvN5RnK5I65rqqpJ_Cfhku'
+    app.config['VERIFY_URL'] = "https://www.google.com/recaptcha/api/siteverify"
+
 
     db.init_app(app)
 
