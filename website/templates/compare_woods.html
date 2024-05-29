@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Compare Woods{% endblock %}
+
+{% block content %}
+  <h1>Compare Woods</h1>
+
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Attribute</th>
+          {% for wood in woods %}
+            <th>{{ wood.wood_name }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Wood ID</td>
+          {% for wood in woods %}
+            <td>{{ wood.wood_id }}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Wood Name</td>
+          {% for wood in woods %}
+            <td>{{ wood.wood_name }}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Other Attributes</td>
+          {% for wood in woods %}
+            <td>{{ wood.wood_nickname}}</td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <a href="{{ url_for('views_blueprint.woods_info') }}" class="btn btn-secondary">Back</a>
+{% endblock %}

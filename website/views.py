@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, abort, send_from_directory
+from flask import Blueprint, render_template, request, flash, redirect, abort, send_from_directory, url_for
 from flask_login import login_required, current_user
 from .service.predService import predictTopN, CLASS_NAMES, PredictionForm, CLASS_NAMES_TH, createPredForm
 from werkzeug.utils import secure_filename
@@ -147,6 +147,7 @@ def profile():
 
 @views_blueprint.route('/woods-info', methods=['GET', 'POST'])
 def woods_info():
+    request.form.getlist('compare_woods')
     search_query = request.form.get('search', '')
 
     if search_query:
@@ -162,6 +163,19 @@ def wood_detail(wood_id):
     # ถ้าไม่มีข้อมูลที่ตรงกันในฐานข้อมูล จะส่ง HTTP 404 error response โดยอัตโนมัติ
     wood = Wood.query.get_or_404(wood_id)
     return render_template('wood_detail.html', wood=wood, user=current_user)
+
+
+@views_blueprint.route('/compare-woods', methods=['POST'])
+def compare_woods():
+    wood_ids = request.form.getlist('compare_woods')
+
+    if len(wood_ids) < 2:
+        flash('Please select at least two types of wood to compare.', 'error')
+        return redirect(url_for('views_blueprint.woods_info'))
+
+    woods = Wood.query.filter(Wood.wood_id.in_(wood_ids)).all()
+
+    return render_template("compare_woods.html", woods=woods, user=current_user)
 
 
 

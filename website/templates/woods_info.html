@@ -11,18 +11,22 @@
     <button type="submit" class="btn btn-primary">Search</button>
   </form>
 
-  <div class="container mt-4">
-    <div class="row">
-      {% for wood in woods %}
-        <div class="col-md-4">
-          <div class="card mb-4 shadow-sm">
-            <img src="{{ url_for('static', filename='images/tree_icon.png') }}" class="card-img-top" alt="Tree Image">
-            <div class="card-body">
-              <h5 class="card-title"><a href="{{ url_for('views_blueprint.wood_detail', wood_id=wood.wood_id) }}">{{ wood.wood_name }}</a></h5>
+  <form id="compare_form" method="POST" action="{{ url_for('views_blueprint.compare_woods') }}">
+    <div class="container mt-4">
+      <div class="row">
+        {% for wood in woods %}
+          <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+              <img src="{{ url_for('static', filename='images/tree_icon.png') }}" class="card-img-top" alt="Tree Image">
+              <div class="card-body">
+                <h5 class="card-title"><a href="{{ url_for('views_blueprint.wood_detail', wood_id=wood.wood_id) }}">{{ wood.wood_name }}</a></h5>
+                <input type="checkbox" name="compare_woods" value="{{ wood.wood_id }}"> Compare
+              </div>
             </div>
           </div>
-        </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
     </div>
-  </div>
+    <button type="submit" class="btn btn-primary">Compare</button>
+  </form>
 {% endblock %}
