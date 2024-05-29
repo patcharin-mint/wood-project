@@ -2,7 +2,10 @@
 {% block title %}Identification{% endblock %} 
 
 {% block content %}
-    <form method="post" enctype='multipart/form-data'>
+
+
+
+    <form id="predict-form" method="post" enctype='multipart/form-data'>
 
         {{ form.hidden_tag() }}
         <div class="form-group">
@@ -22,6 +25,7 @@
         <div class="form-group">
             {{ form.submit(class="submit-button") }}
         </div>
+
     </form>
 
     {% if image_file %}

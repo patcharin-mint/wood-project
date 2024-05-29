@@ -1,17 +1,19 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, abort, send_from_directory
 from flask_login import login_required, current_user
 from .service.predService import predictTopN, CLASS_NAMES, PredictionForm, CLASS_NAMES_TH, createPredForm
 from werkzeug.utils import secure_filename
 import os
-from . import db
+from . import db, create_app
 from .models import Source, PredictRecord, User, Wood, Role
 import datetime
 import locale
+import requests
 
 
 views_blueprint = Blueprint('views_blueprint', __name__)
 
 UPLOAD_FOLDER = 'website/static/images'
+STATIC_IMG_FOLDER = 'website/static/images'
 
 # ตั้งค่า locale เป็น 'th_TH.UTF-8' เพื่อให้ Python รู้จักการเรียงลำดับภาษาไทย
 locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
@@ -21,19 +23,21 @@ locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
 # route
 
 @views_blueprint.route('/', methods=['GET'])
-@login_required
 def home():
     return render_template("home.html", user=current_user)
 
 
+
+
+
 @views_blueprint.route('/wood-identification', methods=['GET', 'POST'])
-# @login_required
 def prediction():
 
     form = createPredForm()
-
+    
     # กดปุ่ม submit = post
     if form.validate_on_submit():
+
         file = form.file.data
         selected_wood = form.existing_wood.data
         selected_source = form.existing_source.data
@@ -94,18 +98,38 @@ def prediction():
                 )
                 db.session.add(record)
                 db.session.commit()
-            return render_template("predict.html", form=form, image_file=new_filename, predictions=pred, source=selected_source, user=current_user)
+            return render_template("predict.html", form=form, image_file=new_filename, predictions=pred, source=selected_source, user=current_user, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
         
-    return render_template("predict.html", form=form, user=current_user)
+    return render_template("predict.html", form=form, user=current_user, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
 
 
 
-@views_blueprint.route('/prediction-history')
+@views_blueprint.route('/prediction-history', methods=['GET', 'POST'])
 @login_required
 def prediction_history():
-    prediction_history = PredictRecord.query.filter_by(user_id=current_user.user_id).all()
-    return render_template("prediction_history.html", prediction_history=prediction_history, user=current_user)
 
+    sorted_sources = Source.query.order_by(Source.source_name).all()
+    sorted_roles = Role.query.order_by(Role.role_name).all()
+    sorted_woods = Wood.query.order_by(Wood.wood_name).all()
+
+    prediction_history = PredictRecord.query.filter_by(user_id=current_user.user_id)
+    prediction_history = prediction_history.order_by(PredictRecord.date.desc())
+
+
+    if request.method == 'POST':
+
+        search_source_query = request.form.get('search_source')
+        search_role_query = request.form.get('search_role')
+        search_wood_query = request.form.get('search_wood')
+
+        if search_source_query:
+            prediction_history = prediction_history.filter(PredictRecord.source_id == search_source_query)
+        if search_role_query:
+            prediction_history = prediction_history.filter(PredictRecord.user_role_id == search_role_query)
+        if search_wood_query:
+            prediction_history = prediction_history.filter(PredictRecord.wood_id == search_wood_query)
+
+    return render_template("prediction_history.html", prediction_history=prediction_history, user=current_user, sources=sorted_sources, roles=sorted_roles, woods=sorted_woods)
 
 
 @views_blueprint.route('/profile', methods=['GET', 'POST'])

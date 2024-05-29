@@ -4,10 +4,41 @@
 {% block content %}
   <h1>Prediction History</h1>
 
+  <form id="prediction_history_form" method="POST" action="{{ url_for('views_blueprint.prediction_history') }}">
+
+    <div class="form-group">
+      <label for="search_source">Source</label>
+      <select name="search_source" id="search_source" class="form-control">
+        <option value="">Select Source</option>
+        {% for source in sources %}
+          <option value="{{ source.source_id }}">{{ source.source_name }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="search_role">Role</label>
+      <select name="search_role" id="search_role" class="form-control">
+        <option value="">Select Role</option>
+        {% for role in roles %}
+          <option value="{{ role.role_id }}">{{ role.role_name }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="search_wood">Wood</label>
+      <select name="search_wood" id="search_wood" class="form-control">
+        <option value="">Select Wood</option>
+        {% for wood in woods %}
+          <option value="{{ wood.wood_id }}">{{ wood.wood_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
   <table class="table">
     <thead>
       <tr>
-        <th scope="col">#</th>
+        <!-- <th scope="col">#</th> -->
         <th scope="col">Date</th>
         <th scope="col">Source</th>
         <th scope="col">Role</th>
@@ -21,7 +52,7 @@
     <tbody>
       {% for record in prediction_history %}
         <tr>
-          <th scope="row">{{ record.record_id }}</th>
+          <!-- <th scope="row">{{ record.record_id }}</th> -->
           <td>{{ record.date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
           <td>{{ record.source.source_name }}</td>
           <td>{{ record.role.role_name }}</td>

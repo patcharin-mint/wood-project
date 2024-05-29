@@ -12,7 +12,7 @@ import requests
 
 auth_blueprint = Blueprint('auth_blueprint', __name__)
 
-UPLOAD_FOLDER = 'website/static/images'
+UPLOAD_FOLDER = 'website/static/images' 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 G_LEN_EMAIL = 4
@@ -38,6 +38,16 @@ def sign_up():
     sorted_roles = sorted(Role.query.all(), key=lambda x: locale.strxfrm(x.role_name))
 
     if request.method == 'POST':
+        
+        print(request.form)
+
+        secret_response = request.form['g-recaptcha-response']
+
+        verify_response = requests.post(url=f"{create_app().config['VERIFY_URL']}?secret={create_app().config['RECAPTCHA_SECRET_KEY']}&response={secret_response}").json()
+
+
+        if verify_response['success'] == False or verify_response['score'] < 0.5:
+            abort(401)
 
         email = request.form.get('email')
         first_name = request.form.get('firstName')
@@ -84,7 +94,7 @@ def sign_up():
 
             return redirect(url_for('views_blueprint.home'))
 
-    return render_template("sign_up.html", user=current_user, roles=sorted_roles)
+    return render_template("sign_up.html", user=current_user, roles=sorted_roles, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
 
 
 

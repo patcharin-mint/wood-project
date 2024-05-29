@@ -1,82 +1,56 @@
-{% extends "base.html" %} {% block title %}Sign Up{% endblock %} {% block
-    content %}
-    <form method="POST" enctype="multipart/form-data">
-        <h3 align="center">Sign Up</h3>
-        <div class="form-group">
-            <label for="profile_picture">Profile Picture</label>
-            <input type="file" class="form-control-file" id="profile_picture" name="profile_picture">
-        </div>
-        <div class="form-group">
-            <label for="email">Email Address</label>
-            <input
-            type="email"
-            class="form-control"
-            id="email"
-            name="email"
-            placeholder="Enter email"
-            />
-        </div>
-        <div class="form-group">
-            <label for="firstName">First Name</label>
-            <input
-            type="text"
-            class="form-control"
-            id="firstName"
-            name="firstName"
-            placeholder="Enter first name"
-            />
-        </div>
-        <div class="form-group"></div>
+{% extends "base.html" %} 
+{% block title %}Sign Up{% endblock %} 
+
+{% block content %}
+<script src="https://www.google.com/recaptcha/api.js"></script>
+
+<script>
+  function onSubmit(token) {
+    document.getElementById("sign-up-form").submit();
+  }
+</script>
+
+<form id="sign-up-form" action="{{ url_for('auth_blueprint.sign_up') }}" method="POST" enctype="multipart/form-data">
+    <h3 align="center">Sign Up</h3>
+    <div class="form-group">
+        <label for="profile_picture">Profile Picture</label>
+        <input type="file" class="form-control-file" id="profile_picture" name="profile_picture">
+    </div>
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+    </div>
+    <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter first name">
+    </div>
+    <div class="form-group">
         <label for="lastName">Last Name</label>
-        <input
-            type="text"
-            class="form-control"
-            id="lastName"
-            name="lastName"
-            placeholder="Enter last name"
-        />
-        </div>
-        <div class="form-group"></div>
+        <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Enter last name">
+    </div>
+    <div class="form-group">
         <label for="userName">User Name</label>
-        <input
-            type="text"
-            class="form-control"
-            id="userName"
-            name="userName"
-            placeholder="Enter username"
-        />
-        </div>
-        <div class="form-group">
+        <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter username">
+    </div>
+    <div class="form-group">
         <label for="password1">Password</label>
-        <input
-            type="password"
-            class="form-control"
-            id="password1"
-            name="password1"
-            placeholder="Enter password"
-        />
-        </div>
-        <div class="form-group">
+        <input type="password" class="form-control" id="password1" name="password1" placeholder="Enter password">
+    </div>
+    <div class="form-group">
         <label for="password2">Password (Confirm)</label>
-        <input
-            type="password"
-            class="form-control"
-            id="password2"
-            name="password2"
-            placeholder="Confirm password"
-            />
-        </div>
-        <div class="form-group">
-            <label for="role">Role</label>
-            <select class="form-control" id="role" name="role" required>
-              {% for role in roles %}
-                {% if role.role_name != "Admin" %}
-                    <option value="{{ role.role_id }}">{{ role.role_name }}</option>
-                {% endif %}
-              {% endfor %}
-            </select>
-        </div>
-        <br />
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-    {% endblock %}
+        <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm password">
+    </div>
+    <div class="form-group">
+        <label for="role">Role</label>
+        <select class="form-control" id="role" name="role" required>
+          {% for role in roles %}
+            {% if role.role_name != "Admin" %}
+                <option value="{{ role.role_id }}">{{ role.role_name }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+    </div>
+    <br />
+    <button type="submit" class="g-recaptcha btn btn-primary" data-sitekey="{{site_key}}" data-callback="onSubmit" data-action="submit">Submit...</button>
+</form>
+{% endblock %}

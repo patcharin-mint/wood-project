@@ -2,6 +2,7 @@ from keras.models import load_model
 from keras.preprocessing import image
 import numpy as np
 from flask_wtf import FlaskForm
+from flask_wtf.recaptcha import RecaptchaField
 from wtforms import SubmitField, FileField, SelectField, StringField
 from flask_wtf.file import FileAllowed, FileRequired
 from ..models import Source, Wood
