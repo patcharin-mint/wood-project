@@ -87,6 +87,9 @@ def prediction():
             p1 = p1_wood.wood_name 
             p2 = p2_wood.wood_name
             p3 = p3_wood.wood_name 
+
+            predictions = {p1: pred.get(list(pred.keys())[0]), p2: pred.get(list(pred.keys())[1]), p3: pred.get(list(pred.keys())[2]) }
+
             
             if current_user.is_authenticated:
                 record = PredictRecord(
@@ -102,7 +105,7 @@ def prediction():
                 )
                 db.session.add(record)
                 db.session.commit()
-            return render_template("predict.html", form=form, image_file=new_filename, predictions=pred, source=selected_source, user=current_user, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
+            return render_template("predict.html", form=form, image_file=new_filename, predictions=predictions, source=selected_source, user=current_user, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
         
     return render_template("predict.html", form=form, user=current_user, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
 

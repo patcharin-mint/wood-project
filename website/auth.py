@@ -19,9 +19,13 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 G_LEN_EMAIL = 4
 G_LEN_FNAME = 2
 G_LEN_LNAME = 2
+G_LEN_UNAME = 4
+G_LEN_PWORD = 7
 NG_LEN_EMAIL = 50
 NG_LEN_FNAME = 50
 NG_LEN_LNAME = 50
+NG_LEN_UNAME = 50
+NG_LEN_PWORD = 50
 
 # ตั้งค่า locale เป็น 'th_TH.UTF-8' เพื่อให้ Python รู้จักการเรียงลำดับภาษาไทย
 locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
@@ -65,7 +69,7 @@ def sign_up():
             flash('Username นี้มีผู้ใช้แล้ว', category='error')
         elif len(email) < G_LEN_EMAIL or len(email) > NG_LEN_EMAIL:
             flash('Email ต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร', category='error')
-        elif len(user_name) < 4 or len(user_name) > 50:
+        elif len(user_name) < G_LEN_UNAME or len(user_name) > NG_LEN_UNAME:
             flash('Username ต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร', category='error')
         elif len(first_name) < G_LEN_FNAME  or len(first_name) > NG_LEN_FNAME:
             flash('ชื่อจริงต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร', category='error')
@@ -73,7 +77,7 @@ def sign_up():
             flash('นามสกุลต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร', category='error')
         elif password1 != password2:
             flash('กรุณาใส่ Password ให้ตรงกัน', category='error')
-        elif len(password1) < 7 or len(password1) > 50:
+        elif len(password1) < G_LEN_PWORD or len(password1) > NG_LEN_PWORD:
             flash('Password ต้องมีขนาดตั้งแต่ 7 - 50 ตัวอักษร', category='error')
         else:
             new_user = User(email=email, first_name=first_name, last_name=last_name, user_name=user_name, password=generate_password_hash(password1, method='pbkdf2:sha256'), role_id=role_id)
@@ -148,37 +152,68 @@ def logout():
 def update_profile():
     user = current_user
 
+    user_name = request.form.get('userName')
     email = request.form.get('email')
     first_name = request.form.get('firstName')
     last_name = request.form.get('lastName')
     role_id = request.form.get('role')
+    password = request.form.get('password')
+    new_password = request.form.get('newPassword')
+    confirm_new_password = request.form.get('confirmNewPassword')
+
+    can_update = True
 
     if User.query.filter(User.email == email, User.user_id != user.user_id).first():
+        can_update = False
         flash('Email นี้มีผู้ใช้แล้ว', category='error')
     elif len(email) < G_LEN_EMAIL or len(email) > NG_LEN_EMAIL:
+        can_update = False
         flash('Email ต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร', category='error')
     elif len(first_name) < G_LEN_FNAME  or len(first_name) > NG_LEN_FNAME:
+        can_update = False
         flash('ชื่อจริงต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร', category='error')
     elif len(last_name) < G_LEN_LNAME  or len(last_name) > NG_LEN_LNAME:
+        can_update = False
         flash('นามสกุลต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร', category='error')
-    else:
+    elif User.query.filter(User.user_name == user_name, User.user_id != user.user_id).first():
+        can_update = False
+        flash('Username นี้มีผู้ใช้แล้ว', category='error')
+    elif len(user_name) < G_LEN_UNAME  or len(user_name) > NG_LEN_UNAME:
+        can_update = False
+        flash('ชื่อผู้ใช้ต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร', category='error')
+
+    # ตรวจสอบรหัสผ่านใหม่และการยืนยันรหัสผ่าน
+    if new_password and confirm_new_password:
+        if new_password != confirm_new_password:
+            can_update = False
+            flash('รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน', category='error')
+        elif len(new_password) < G_LEN_PWORD or len(new_password) > NG_LEN_PWORD:
+            can_update = False
+            flash('Password ต้องมีขนาดตั้งแต่ 7 - 50 ตัวอักษร', category='error')
+
+    if can_update:
+        # อัปเดตข้อมูลในฐานข้อมูลเฉพาะเมื่อสามารถอัปเดตได้
+        user.user_name = user_name
         user.first_name = first_name
         user.last_name = last_name
         user.email = email
 
-        if role_id != None:
-            print(role_id)
+        if new_password:
+            # อัปเดตรหัสผ่านเฉพาะเมื่อมีการร้องขอเปลี่ยนแปลงรหัสผ่าน
+            user.password = generate_password_hash(new_password, method='pbkdf2:sha256')
+
+        if role_id:
             user.role_id = role_id
 
-
         if 'profile_picture' in request.files:
+            # อัปโหลดรูปภาพโปรไฟล์เมื่อมีการอัปโหลดใหม่
             profile_picture = request.files['profile_picture']
             if profile_picture and allowed_file(profile_picture.filename):
                 filename = secure_filename(profile_picture.filename)
                 filename = f"{user.user_id}_profile.jpg"
 
                 file_path = os.path.join(PROFILE_FOLDER, filename)
-                
+
                 if os.path.exists(file_path):
                     os.remove(file_path)
 
@@ -186,7 +221,7 @@ def update_profile():
                 user.profile_picture = filename
         
         db.session.commit()
-        flash('Profile updated successfully!', category='success')
+        flash('บันทึกข้อมูลสำเร็จ', category='success')
 
     return redirect(url_for('views_blueprint.profile'))
 
