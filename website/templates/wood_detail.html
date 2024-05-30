@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Prediction History{% endblock %}
+{% block title %}Tree Information{% endblock %}
 
 {% block content %}
   <h1>Tree Information</h1>
@@ -7,15 +7,70 @@
   <table class="table">
     <thead>
       <tr>
-        <th scope="col">Wood</th>
-        <th scope="col">File IMG</th>
+        <th scope="col">Attribute</th>
+        <th scope="col">Detail</th>
       </tr>
     </thead>
     <tbody>
         <tr>
-          <td>{{ wood.wood_name}}</td>
-          <td><img src="{{ url_for('static', filename='images/tree_icon.png') }}" class="card-img-top" alt="Prediction Image"></td>
+          <td>Name</td>
+          <td>{{ wood.wood_name }}</td>
+        </tr>
+        <tr>
+          <td>Scientific Name</td>
+          <td>{{ wood_data['ชื่อวิทยาศาสตร์'] }}</td>
+        </tr>
+        <tr>
+          <td>Common Name</td>
+          <td>{{ wood_data['ชื่อสามัญ'] }}</td>
+        </tr>
+        <tr>
+          <td>Other Names</td>
+          <td>
+            <ul>
+              {% for name in wood_data['ชื่ออื่น'] %}
+                <li>{{ name }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>Family</td>
+          <td>{{ wood_data['วงศ์'] }}</td>
+        </tr>
+        <tr>
+          <td>Tree Description</td>
+          <td>{{ wood_data['ต้น'] }}</td>
+        </tr>
+        <tr>
+          <td>Leaf Description</td>
+          <td>{{ wood_data['ใบ']}}</td>
+        </tr>
+        <tr>
+          <td>Flower Description</td>
+          <td>{{ wood_data['ดอก'] }}</td>
+        </tr>
+        <tr>
+          <td>Fruit and Seed Description</td>
+          <td>{{ wood_data['ผลและเมล็ด']}}</td>
+        </tr>
+        <tr>
+          <td>Cross Section Structure</td>
+          <td>{{ wood_data['โครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (ross section)']}}</td>
+        </tr>
+        <tr>
+          <td>Environmental Factors</td>
+          <td>{{ wood_data['ปัจจัยแวดล้อมที่เหมาะสม']}}</td>
+        </tr>
+        <tr>
+          <td>Tree Image</td>
+          <td><img src="{{ url_for('static', filename='images/tree_icon.png') }}" class="card-img-top" alt="Tree Image"></td>
+        </tr>
+        <tr>
+          <td>Cross Section Image</td>
+          <td><img src="{{ url_for('static', filename='data/' + wood_data['รูปโครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (ross section)']) }}" class="card-img-top" alt="Cross Section Image"></td>
         </tr>
     </tbody>
   </table>
 {% endblock %}
+

@@ -4,10 +4,10 @@ from .service.predService import predictTopN, CLASS_NAMES, PredictionForm, CLASS
 from werkzeug.utils import secure_filename
 import os
 from . import db, create_app
-from .models import Source, PredictRecord, User, Wood, Role, Post, File
+from .models import Source, PredictRecord, User, Wood, Role, Post, File, Category
 import datetime
 import locale
-import requests
+import json
 
 
 views_blueprint = Blueprint('views_blueprint', __name__)
@@ -15,6 +15,7 @@ views_blueprint = Blueprint('views_blueprint', __name__)
 UPLOAD_FOLDER = 'website/static/uploads'
 PREDICT_FOLDER = 'website/static/predicts'
 STATIC_IMG_FOLDER = 'website/static/images'
+JSON_FOLDER = "website/data"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 
@@ -24,6 +25,11 @@ locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def load_wood_data(json_file_path):
+    with open(json_file_path, 'r', encoding='utf-8') as file:
+        wood_data = json.load(file)
+    return wood_data
 
 
 # route
@@ -167,9 +173,11 @@ def woods_info():
 
 @views_blueprint.route('/woods-info/<int:wood_id>')
 def wood_detail(wood_id):
-    # ถ้าไม่มีข้อมูลที่ตรงกันในฐานข้อมูล จะส่ง HTTP 404 error response โดยอัตโนมัติ
     wood = Wood.query.get_or_404(wood_id)
-    return render_template('wood_detail.html', wood=wood, user=current_user)
+    filename = f"{wood.wood_nickname}.json"
+    file_path = os.path.join(JSON_FOLDER, filename)
+    wood_data = load_wood_data(file_path)
+    return render_template('wood_detail.html', wood=wood, user=current_user, wood_data=wood_data)
 
 
 @views_blueprint.route('/compare-woods', methods=['POST'])
@@ -185,15 +193,22 @@ def compare_woods():
     return render_template("compare_woods.html", woods=woods, user=current_user)
 
 
+
 @views_blueprint.route('/community', methods=['GET', 'POST'])
 def community():
+
+    sorted_categorys = Category.query.order_by(Category.category_name).all()
+    search_query = request.form.get('search', '').strip()
+
     if request.method == 'POST':
         content = request.form.get('post')
+        category_id = request.form.get('category')
+
         if not content:
             flash('เนื้อหาของโพสต์ไม่สามารถเว้นว่างได้', 'error')
             return redirect(url_for('views_blueprint.community'))
         
-        new_post = Post(user_post_id=current_user.user_id, user_role_id=current_user.role_id, datetime=datetime.datetime.now(), content=content)
+        new_post = Post(user_post_id=current_user.user_id, user_role_id=current_user.role_id, datetime=datetime.datetime.now(), content=content, category_id=category_id)
         db.session.add(new_post)
         db.session.commit()
 
@@ -215,5 +230,9 @@ def community():
         db.session.commit()
         return redirect(url_for('views_blueprint.community'))
     
-    posts = Post.query.order_by(Post.datetime.desc()).all()
-    return render_template("community.html", user=current_user, posts=posts)
+    if search_query:
+        posts = Post.query.filter(Post.category_post.any(category_name=search_query)).order_by(Post.datetime.desc()).all()
+    else:
+        posts = Post.query.order_by(Post.datetime.desc()).all()
+
+    return render_template("community.html", user=current_user, posts=posts, categorys=sorted_categorys)

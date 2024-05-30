@@ -53,7 +53,7 @@
                 <label for="role">Role</label>
                 <select class="form-control" id="role" name="role" required>
                   {% for role in roles %}
-                    {% if role.role_name != "Admin" or  role.role_name != "เจ้าหน้าที่ป่าไม้" %}
+                    {% if role.role_name != "Admin" and  role.role_name != "เจ้าหน้าที่ป่าไม้" %}
                         <option value="{{ role.role_id }}">{{ role.role_name }}</option>
                     {% endif %}
                   {% endfor %}

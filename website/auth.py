@@ -3,7 +3,7 @@ from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db, create_app # =  from __init__.py import db
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import Role, Source, Wood
+from .models import Role, Source, Wood, Category
 from werkzeug.utils import secure_filename
 import os
 import locale
@@ -109,6 +109,7 @@ def sign_up():
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
+
     if request.method == 'POST':
 
         print(request.form)
