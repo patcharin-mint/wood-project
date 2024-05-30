@@ -70,3 +70,10 @@ def edit_item(type, id):
     
     return render_template('edit_item.html', form=form, type=type, user=current_user)
 
+
+
+@manage_blueprint.route('/dashboard')
+def dashboard():
+    roles = Role.query.all()
+    woods = Wood.query.all()
+    return render_template('dashboard.html', roles=roles, woods=woods, user=current_user)

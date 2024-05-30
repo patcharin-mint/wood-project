@@ -4,7 +4,7 @@ from .service.predService import predictTopN, CLASS_NAMES, PredictionForm, CLASS
 from werkzeug.utils import secure_filename
 import os
 from . import db, create_app
-from .models import Source, PredictRecord, User, Wood, Role
+from .models import Source, PredictRecord, User, Wood, Role, Post, File
 import datetime
 import locale
 import requests
@@ -12,12 +12,18 @@ import requests
 
 views_blueprint = Blueprint('views_blueprint', __name__)
 
-UPLOAD_FOLDER = 'website/static/images'
+UPLOAD_FOLDER = 'website/static/uploads'
+PREDICT_FOLDER = 'website/static/predicts'
 STATIC_IMG_FOLDER = 'website/static/images'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
 
 # ตั้งค่า locale เป็น 'th_TH.UTF-8' เพื่อให้ Python รู้จักการเรียงลำดับภาษาไทย
 locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
 
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # route
@@ -25,8 +31,6 @@ locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
 @views_blueprint.route('/', methods=['GET'])
 def home():
     return render_template("home.html", user=current_user)
-
-
 
 
 
@@ -48,12 +52,12 @@ def prediction():
         else:
 
             if current_user.is_authenticated:
-                new_filename = f"{current_user.user_name}_predict_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%S')}.jpg"
-                filepath = os.path.join(UPLOAD_FOLDER, new_filename)
+                new_filename = f"{current_user.user_id}_predict_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%S')}.jpg"
+                filepath = os.path.join(PREDICT_FOLDER, new_filename)
                 file.save(filepath)
             else:
                 new_filename = "temp.jpg"
-                filepath = os.path.join(UPLOAD_FOLDER, new_filename)
+                filepath = os.path.join(STATIC_IMG_FOLDER, new_filename)
                 if os.path.exists(filepath):
                     os.remove(filepath)
                 file.save(filepath)
@@ -178,12 +182,35 @@ def compare_woods():
     return render_template("compare_woods.html", woods=woods, user=current_user)
 
 
+@views_blueprint.route('/community', methods=['GET', 'POST'])
+def community():
+    if request.method == 'POST':
+        content = request.form.get('post')
+        if not content:
+            flash('เนื้อหาของโพสต์ไม่สามารถเว้นว่างได้', 'error')
+            return redirect(url_for('views_blueprint.community'))
+        
+        new_post = Post(user_post_id=current_user.user_id, user_role_id=current_user.role_id, datetime=datetime.datetime.now(), content=content)
+        db.session.add(new_post)
+        db.session.commit()
 
-
-@views_blueprint.route('/admin_mangement')
-@login_required
-def management():
-    return render_template("admin_mangement.html", user=current_user)
-
-
-
+        files = request.files.getlist('files')
+        
+        num = 1
+        for file in files:
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                print(filename)
+                new_filename = f"{current_user.user_id}_post{new_post.post_id}x{num}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%S')}.jpg"
+                file_path = os.path.join(UPLOAD_FOLDER, new_filename)
+                file.save(file_path)
+                new_file = File(file_name=new_filename, post_id=new_post.post_id)
+                db.session.add(new_file)
+                db.session.commit()
+                num = num + 1 
+        
+        db.session.commit()
+        return redirect(url_for('views_blueprint.community'))
+    
+    posts = Post.query.order_by(Post.datetime.desc()).all()
+    return render_template("community.html", user=current_user, posts=posts)

@@ -8,12 +8,17 @@ class Role(db.Model):
     role_id = db.Column(db.Integer, primary_key=True)
     role_name = db.Column(db.String(50), unique=True, nullable=False)
 
+
     def get_id(self):
         return str(self.role_id)
     
     def get_name(self):
         return str(self.role_name)
     
+    def get_user_count(self):
+        return User.query.filter_by(role_id=self.role_id).count()
+    
+
 
 class Wood(db.Model):
     wood_id = db.Column(db.Integer, primary_key=True)
@@ -25,6 +30,10 @@ class Wood(db.Model):
     
     def get_name(self):
         return str(self.wood_name)
+    
+    def get_related_users(self):
+        return User.query.filter_by(wood_id=self.wood_id).all()
+
 
 
 class User(db.Model, UserMixin):
@@ -35,11 +44,14 @@ class User(db.Model, UserMixin):
     last_name = db.Column(db.String(50), nullable=False)
     user_name = db.Column(db.String(50), unique=True, nullable=False)
     role_id = db.Column(db.String(50), db.ForeignKey('role.role_id'), nullable=False)
-    role = db.relationship('Role', backref='users') 
     profile_picture = db.Column(db.String(100), unique=True)
+
+    role = db.relationship('Role', backref='users') 
+    posts = db.relationship('Post')
 
     def get_id(self):
         return str(self.user_id)
+
 
 
 class PredictRecord(db.Model):
@@ -67,8 +79,27 @@ class Source(db.Model):
     source_id = db.Column(db.Integer, primary_key=True)
     source_name = db.Column(db.String(50), unique=True, nullable=False)
 
+    predict_records = db.relationship('PredictRecord')
+
     def get_id(self):
         return str(self.source_id)
     
     def get_name(self):
         return str(self.source_name)
+
+
+class Post(db.Model):
+    post_id = db.Column(db.Integer, primary_key=True)
+    user_post_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user_role_id = db.Column(db.Integer, db.ForeignKey('role.role_id'), nullable=False)
+    datetime = db.Column(db.DateTime(timezone=True), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+
+    files = db.relationship('File')
+    role = db.relationship('Role', foreign_keys=[user_role_id])
+
+
+class File(db.Model):
+    file_id = db.Column(db.Integer, primary_key=True)
+    file_name = db.Column(db.String(100), unique=True, nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)

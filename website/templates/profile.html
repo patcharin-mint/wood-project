@@ -9,8 +9,9 @@
             <div class="form-group">
                 <label for="profilePicture">Profile Picture:</label>
                 <input type="file" class="form-control-file" id="profile_picture" name="profile_picture" onchange="previewProfilePicture(event)">
-                <img id="profile_picture_preview" src="{{ url_for('static', filename='images/' + user.profile_picture if user.profile_picture else 'images/default_profile.jpg') }}" height="400px" width="400px" style="display:block; margin-top:10px;">
+                <img id="profile_picture_preview" src="{{ url_for('static', filename='profiles/' + user.profile_picture if user.profile_picture else 'images/default_profile.jpg') }}" height="400px" width="400px" style="display:block; margin-top:10px;">
             </div>
+        </div>
             <div class="form-group">
                 <label for="firstName">First Name:</label>
                 <input type="text" class="form-control" id="firstName" name="firstName" value="{{ user.first_name }}" required>
@@ -43,7 +44,7 @@
 
     {% else %}
         {% if user.profile_picture %}
-            <img src="{{ url_for('static', filename='images/' + user.profile_picture)}}" height="400px" width="400px">
+            <img src="{{ url_for('static', filename='profiles/' + user.profile_picture)}}" height="400px" width="400px">
         {% else %}
             <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" height="400px" width="400px">
         {% endif %}

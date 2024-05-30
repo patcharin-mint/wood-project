@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}ชุมชน{% endblock %}
+
+{% block content %}
+<div align="center">
+    <h1>ชุมชนคนรักไม้</h1>
+</div>
+
+{% if user.is_authenticated %}
+<form method="POST" enctype="multipart/form-data">
+    <label for="post">โพสต์:</label>
+    <textarea rows="5" cols="50" name="post" id="post"></textarea>
+    <label for="files">อัปโหลดรูปภาพ:</label>
+    <input type="file" name="files" id="files" multiple>
+    <div align="center">
+        <button type="submit">โพสต์</button>
+    </div>
+</form>
+{% endif %}
+
+
+{% for post in posts %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <p class="card-text">{{ post.content }}</p>
+                <p class="card-text">วันที่: {{ post.datetime.strftime('%d %b %Y %H:%M:%S') }}</p>
+                <div class="row">
+                    {% for file in post.files %}
+                    <div class="col-md-4">
+                        <img src="{{ url_for('static', filename='uploads/' + file.file_name) }}" alt="รูปภาพ" class="img-fluid mb-2">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -31,7 +31,11 @@
     {% if image_file %}
     <div class="text-center">
         <h2>Uploaded Image</h2>
+        {% if user.is_authenticated %}
+        <img src="{{ url_for('static', filename='predicts/' + image_file) }}" height="400px" width="400px">
+        {% else %}
         <img src="{{ url_for('static', filename='images/' + image_file) }}" height="400px" width="400px">
+        {% endif %}
     </div>
     {% endif %}
 

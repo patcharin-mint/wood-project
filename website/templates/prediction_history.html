@@ -57,7 +57,7 @@
           <td>{{ record.source.source_name }}</td>
           <td>{{ record.role.role_name }}</td>
           <td>{{ record.wood.wood_name}}</td>
-          <td><img src="{{ url_for('static', filename='images/' + record.file_name) }}" class="card-img-top" alt="Prediction Image"></td>
+          <td><img src="{{ url_for('static', filename='predicts/' + record.file_name) }}" class="card-img-top" alt="Prediction Image"></td>
           <td>{{ record.prob1  }}</td>
           <td>{{ record.prob2  }}</td>
           <td>{{ record.prob3  }}</td>

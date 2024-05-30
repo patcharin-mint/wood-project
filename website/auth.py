@@ -12,7 +12,8 @@ import requests
 
 auth_blueprint = Blueprint('auth_blueprint', __name__)
 
-UPLOAD_FOLDER = 'website/static/images' 
+PROFILE_FOLDER = 'website/static/profiles'
+STATIC_IMG_FOLDER = 'website/static/images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 G_LEN_EMAIL = 4
@@ -24,6 +25,7 @@ NG_LEN_LNAME = 50
 
 # ตั้งค่า locale เป็น 'th_TH.UTF-8' เพื่อให้ Python รู้จักการเรียงลำดับภาษาไทย
 locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -74,23 +76,26 @@ def sign_up():
         elif len(password1) < 7 or len(password1) > 50:
             flash('Password ต้องมีขนาดตั้งแต่ 7 - 50 ตัวอักษร', category='error')
         else:
+            new_user = User(email=email, first_name=first_name, last_name=last_name, user_name=user_name, password=generate_password_hash(password1, method='pbkdf2:sha256'), role_id=role_id)
+            db.session.add(new_user)
+            db.session.commit()
+            login_user(new_user, remember=True)
+            flash('Account created!', category='success')
+
             filename = None
             if 'profile_picture' in request.files:
                 profile_picture = request.files['profile_picture']
             
                 if profile_picture and allowed_file(profile_picture.filename):
                     filename = secure_filename(profile_picture.filename)
-                    filename = f"{user_name}_profile.jpg"
+                    filename = f"{new_user.user_id}_profile.jpg"
 
-                    file_path = os.path.join(UPLOAD_FOLDER, filename)
+                    file_path = os.path.join(PROFILE_FOLDER, filename)
                     profile_picture.save(file_path)
-
-
-            new_user = User(email=email, first_name=first_name, last_name=last_name, user_name=user_name, password=generate_password_hash(password1, method='pbkdf2:sha256'), role_id=role_id, profile_picture=filename)
+            
+            new_user.profile_picture = filename
             db.session.add(new_user)
             db.session.commit()
-            login_user(new_user, remember=True)
-            flash('Account created!', category='success')
 
             return redirect(url_for('views_blueprint.home'))
 
@@ -170,10 +175,10 @@ def update_profile():
             profile_picture = request.files['profile_picture']
             if profile_picture and allowed_file(profile_picture.filename):
                 filename = secure_filename(profile_picture.filename)
-                filename = f"{user.user_name}_profile.jpg"
+                filename = f"{user.user_id}_profile.jpg"
 
-                file_path = os.path.join(UPLOAD_FOLDER, filename)
-
+                file_path = os.path.join(PROFILE_FOLDER, filename)
+                
                 if os.path.exists(file_path):
                     os.remove(file_path)
 
