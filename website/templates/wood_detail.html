@@ -13,54 +13,48 @@
     </thead>
     <tbody>
         <tr>
-          <td>Name</td>
-          <td>{{ wood.wood_name }}</td>
+          <td>ชื่อ</td>
+          <td>{{ wood_data['ชื่อ'] }}</td>
         </tr>
         <tr>
-          <td>Scientific Name</td>
+          <td>ชื่อวิทยาศาสตร์</td>
           <td>{{ wood_data['ชื่อวิทยาศาสตร์'] }}</td>
         </tr>
         <tr>
-          <td>Common Name</td>
+          <td>ชื่อสามัญ</td>
           <td>{{ wood_data['ชื่อสามัญ'] }}</td>
         </tr>
         <tr>
-          <td>Other Names</td>
-          <td>
-            <ul>
-              {% for name in wood_data['ชื่ออื่น'] %}
-                <li>{{ name }}</li>
-              {% endfor %}
-            </ul>
-          </td>
+          <td>ชื่อพื้นเมือง</td>
+          <td>{{ wood_data['ชื่อพื้นเมือง'] }}</td>
         </tr>
         <tr>
-          <td>Family</td>
+          <td>วงศ์</td>
           <td>{{ wood_data['วงศ์'] }}</td>
         </tr>
         <tr>
-          <td>Tree Description</td>
+          <td>ต้น</td>
           <td>{{ wood_data['ต้น'] }}</td>
         </tr>
         <tr>
-          <td>Leaf Description</td>
-          <td>{{ wood_data['ใบ']}}</td>
+          <td>เปลือก</td>
+          <td>{{ wood_data['เปลือก'] }}</td>
         </tr>
         <tr>
-          <td>Flower Description</td>
+          <td>ใบ</td>
+          <td>{{ wood_data['ใบ'] }}</td>
+        </tr>
+        <tr>
+          <td>ดอก</td>
           <td>{{ wood_data['ดอก'] }}</td>
         </tr>
         <tr>
-          <td>Fruit and Seed Description</td>
-          <td>{{ wood_data['ผลและเมล็ด']}}</td>
+          <td>ผลและเมล็ด</td>
+          <td>{{ wood_data['ผลและเมล็ด'] }}</td>
         </tr>
         <tr>
-          <td>Cross Section Structure</td>
-          <td>{{ wood_data['โครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (ross section)']}}</td>
-        </tr>
-        <tr>
-          <td>Environmental Factors</td>
-          <td>{{ wood_data['ปัจจัยแวดล้อมที่เหมาะสม']}}</td>
+          <td>โครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (cross section)</td>
+          <td>{{ wood_data['โครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (cross section)'] }}</td>
         </tr>
         <tr>
           <td>Tree Image</td>
@@ -68,9 +62,20 @@
         </tr>
         <tr>
           <td>Cross Section Image</td>
-          <td><img src="{{ url_for('static', filename='data/' + wood_data['รูปโครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (ross section)']) }}" class="card-img-top" alt="Cross Section Image"></td>
+          <td><img src="{{ url_for('static', filename='data/' + wood_data['รูปโครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (cross section)']) }}" class="card-img-top" alt="Cross Section Image"></td>
+        </tr>
+        <tr>
+          <td>แหล่งอ้างอิง</td>
+          <td>
+            <ul>
+              {% for source in wood_data['แหล่งอ้างอิง'] %}
+                <li><a href="{{ source }}">{{ source }}</a></li>
+              {% endfor %}
+            </ul>
+          </td>
         </tr>
     </tbody>
   </table>
 {% endblock %}
+
 
