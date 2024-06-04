@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<style>
+    .profile-picture {
+      border-radius: 50%;
+      width: 400px; /* ปรับขนาดรูปโปรไฟล์ตามต้องการ */
+      height: 400px; /* ปรับขนาดรูปโปรไฟล์ตามต้องการ */
+      object-fit: cover; /* ความสัมพันธ์ของรูปภาพกับองค์ประกอบ */
+    }
+  
+    .table-responsive {
+      margin-top: 60px; /* ปรับระยะห่างของตารางจากรูปโปรไฟล์ */
+      overflow: auto; /* เพิ่มการเลื่อนแถบเมาส์เมื่อข้อมูลเกินขอบเขตของตาราง */
+    }
+</style>
+
+    <h1 class="text-center">Profile</h1>
+
+    {% if edit %}
+        <form method="POST" action="{{ url_for('auth_blueprint.update_profile') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="profilePicture">Profile Picture:</label>
+                <input type="file" class="form-control-file" id="profile_picture" name="profile_picture" onchange="previewProfilePicture(event)">
+                <img id="profile_picture_preview" src="{{ url_for('static', filename='profiles/' + user.profile_picture if user.profile_picture else 'images/default_profile.jpg') }}" height="400px" width="400px" style="display:block; margin-top:10px;">
+            </div>
+
+            
+            <div class="form-group">
+                <label for="userName">New Username:</label>
+                <input type="text" class="form-control" id="userName" name="userName" value="{{ user.user_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" class="form-control" id="firstName" name="firstName" value="{{ user.first_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" class="form-control" id="lastName" name="lastName" value="{{ user.last_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+            </div>
+
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="changePasswordCheckbox" name="changePasswordCheckbox">
+                <label class="form-check-label" for="changePasswordCheckbox">Change Password</label>
+            </div>
+            
+            <div id="passwordFields" style="display: none;">
+                <div class="d-flex flex-row align-items-center mb-2">
+                    <label for="password">Current Password:</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New Password:</label>
+                    <input type="password" class="form-control" id="newPassword" name="newPassword">
+                </div>
+                <div class="form-group">
+                    <label for="confirmNewPassword">Confirm New Password:</label>
+                    <input type="password" class="form-control" id="confirmNewPassword" name="confirmNewPassword">
+                </div>
+            </div>
+            
+            {% if user.role.role_name != 'Admin' %}
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select class="form-control" id="role" name="role" required>
+                  {% for role in roles %}
+                    {% if role.role_name != "Admin" and  role.role_name != "เจ้าหน้าที่ป่าไม้" %}
+                        <option value="{{ role.role_id }}">{{ role.role_name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+        
+        
+    {% else %}
+    <div class="container bootstrap snippets bootdey ">
+        <div class="panel-body inf-content">
+          <div class="row justify-content-center align-items-center">
+            <div class="col-md-4">
+              <img
+                src="{% if user.profile_picture %}{{ url_for('static', filename='profiles/' + user.profile_picture) }}{% else %}{{ url_for('static', filename='images/default_profile.jpg') }}{% endif %}"
+                class="profile-picture card-img-top"
+                alt="Profile Picture"
+              />
+            </div>
+            <div class="col-md-6">
+              <div class="table-responsive">
+                <table class="table table-user-information">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <strong>
+                          <span class="glyphicon glyphicon-user text-primary"></span>
+                          Name
+                        </strong>
+                      </td>
+                      <td class="text">{{ user.first_name }}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>
+                          <span class="glyphicon glyphicon-cloud text-primary"></span>
+                          Lastname
+                        </strong>
+                      </td>
+                      <td class="text">{{ user.last_name }}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>
+                          <span
+                            class="glyphicon glyphicon-bookmark text-primary"
+                          ></span>
+                          Username
+                        </strong>
+                      </td>
+                      <td class="text">{{ user.user_name }}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>
+                          <span
+                            class="glyphicon glyphicon-envelope text-primary"
+                          ></span>
+                          Email
+                        </strong>
+                      </td>
+                      <td class="text">{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>
+                          <span
+                            class="glyphicon glyphicon-eye-open text-primary"
+                          ></span>
+                          Role
+                        </strong>
+                      </td>
+                      <td class="text">{{ user.role.role_name }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <form method="POST">
+                    <button type="submit" class="btn btn-primary">แก้ไข Profile</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+
+    <script>
+        function previewProfilePicture(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const output = document.getElementById('profile_picture_preview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    
+        function togglePasswordFields() {
+            const passwordFields = document.getElementById('passwordFields');
+            const changePasswordCheckbox = document.getElementById('changePasswordCheckbox');
+    
+            if (changePasswordCheckbox.checked) {
+                passwordFields.style.display = 'block';
+            } else {
+                passwordFields.style.display = 'none';
+            }
+        }
+    
+        document.getElementById('changePasswordCheckbox').addEventListener('change', togglePasswordFields);
+    
+        // Initially call the function to ensure correct display on page load
+        togglePasswordFields();
+    </script>
+
+
+{% endblock %}

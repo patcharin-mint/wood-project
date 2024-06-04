@@ -1,0 +1,272 @@
+{% extends "base.html" %} {% block title %}Identification{% endblock %} 
+{% block morestyle %}
+    <style>
+      .image-preview {
+        max-height: 400px;
+        max-width: 400px;
+        object-fit: cover;
+        border-radius: 15px;
+      }
+    
+      .card {
+        border: none;
+        border-radius: 30px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn-upload {
+        background-color: #007bff;
+        color: white;
+        border-radius: 50px;
+      }
+      .btn-upload:hover {
+        background-color: #0056b3;
+      }
+      .file-name {
+        text-align: center;
+        margin-top: 10px;
+        font-style: italic;
+        color: #6c757d;
+      }
+      input[type="file"] {
+        display: none;
+      }
+      /* เพิ่มความยาวสำหรับปุ่ม */
+      .list-group-item span.btn {
+        min-width: 90px; /* ปรับความยาวตามที่ต้องการ */
+      }
+
+      
+  /* ซ่อนโมดัลเริ่มต้น */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    overflow: auto;
+  }
+
+  /* สไตล์รูปภาพในโมดัล */
+  .modal-content {
+    margin: auto;
+    display: block;
+    width: auto;
+    max-width: 80%;
+    max-height: 80%;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* ปุ่มปิด */
+  .close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #fff;
+    font-size: 80px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+  }
+    </style>
+    {% endblock %} {% block content %}
+    
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-6 mb-3 mb-sm-0">
+          <div class="card">
+            <div class="card-body">
+              <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
+                Identification
+              </p>
+              
+              <form method="post" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+    
+                <!-- <form>
+                        <div class="row">
+                            <div class="col-6">-->
+                <div class="form-group">
+                  {{ form.file.label }} <br />
+                  <div class="mb-3">
+                    <input
+                      class="form-control"
+                      type="file"
+                      id="file"
+                      accept="image/*"
+                      name="file"
+                    />
+                    <button type="button" class="btn btn-upload mt-2">
+                      <i class="fa-solid fa-upload"></i> Choose photo
+                    </button>
+                  </div>
+                  <div id="imagePreview" class="mt-4 text-center">
+                    <img
+                      id="previewImg"
+                      class="img-fluid image-preview"
+                      src="#"
+                      alt="Your image will appear here"
+                      style="display: none"
+                      
+                    />
+                    <div id="fileName" class="file-name"></div>
+                  </div>
+    
+                  {{ form.existing_wood.label }} <br />
+                  {{ form.existing_wood(class="form-select") }} <br />
+                  {{ form.existing_source.label }} <br />
+                  {{ form.existing_source(class="form-select") }} <br />
+    
+                  {{ form.new_source.label }} <br />
+                  {{ form.new_source(class="form-control", placeholder="ชื่อแหล่งที่มาต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร") }} <br />
+                </div>
+                <div class="form-group">
+                  {{ form.submit(class="btn btn-primary") }}
+                </div>
+                <!-- </div>
+                        </div>-->
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-body">
+              <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
+                Predictions
+              </p>
+              
+              {% if image_file %}
+              <div class="text-center">
+                <!-- <h4>Uploaded Image</h4> -->
+                <div class="text-center d-flex justify-content-center">
+                  <!-- <img
+                    src="{{ url_for('static', filename='images/' + image_file) }}"
+                    height="400px"
+                    width="400px"
+                  /> -->
+                  {% if user.is_authenticated %}
+                  <img src="{{ url_for('static', filename='predicts/' + image_file) }}" 
+                  class="img-fluid image-preview" style="border-radius: 15px;"
+                  onclick="openModal('{{ url_for('static', filename='predicts/' + image_file) }}')">
+                  {% else %}
+                  <img src="{{ url_for('static', filename='images/' + image_file) }}" 
+                  class="img-fluid image-preview" 
+                  onclick="openModal('{{ url_for('static', filename='images/' + image_file) }}')">
+                  {% endif %}
+
+                  <div id="myModal" class="modal">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <img class="modal-content" id="img01" />
+                  </div>
+
+                </div>
+              </div>
+              {% endif %} 
+              {% if predictions %}
+              <div class="text-center">
+                <!-- <h4>Predictions</h4> -->
+                <br />
+                <ul class="list-group">
+                  {% for wood, probability in predictions.items() %}
+                  <li
+                    class="list-group-item d-flex justify-content-between align-items-center"
+                  >
+                    <a
+                      class="stretched-link"
+                      style="font-size: 18px; color: rgb(0, 0, 0)"
+                      href="{{ url_for('views_blueprint.wood_detail', wood_id=wood[1]) }}"
+                      >{{ wood[0] }}</a
+                    >
+                    <span class="btn btn-info btn-block" style="font-size: 18px"
+                      >{{ probability }}</span
+                    >
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.querySelector(".btn-upload").addEventListener("click", function () {
+        document.getElementById("file").click();
+      });
+    
+      document.getElementById("file").addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const previewImg = document.getElementById("previewImg");
+            const fileName = document.getElementById("fileName");
+            previewImg.src = e.target.result;
+            previewImg.style.display = "block";
+            fileName.textContent = file.name;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // เปิดโมดัลและแสดงรูปภาพเมื่อคลิกที่รูป
+  function openModal(imageSrc) {
+    var modal = document.getElementById("myModal");
+    var modalImg = document.getElementById("img01");
+    modal.style.display = "block";
+    modalImg.src = imageSrc;
+
+    // เพิ่มการตรวจสอบการกดปุ่ม "ESC"
+    document.addEventListener("keydown", closeModalOnEsc);
+
+    // เพิ่มการตรวจสอบการคลิกที่พื้นหลังของโมดัล
+    modal.addEventListener("click", closeModalOnClickOutside);
+  }
+
+  // ปิดโมดัลเมื่อคลิกที่พื้นหลัง
+  function closeModalOnClickOutside(event) {
+    var modalContent = document.querySelector(".modal-content");
+    if (!modalContent.contains(event.target)) {
+      closeModal();
+    }
+  }
+
+  // ปิดโมดัลเมื่อคลิกที่ปุ่มปิดหรือกดปุ่ม "ESC"
+  function closeModal() {
+    var modal = document.getElementById("myModal");
+    modal.style.display = "none";
+
+    // ลบการตรวจสอบการกดปุ่ม "ESC" เมื่อปิดโมดัล
+    document.removeEventListener("keydown", closeModalOnEsc);
+
+    // ลบการตรวจสอบการคลิกที่พื้นหลังของโมดัลเมื่อปิดโมดัล
+    modal.removeEventListener("click", closeModalOnClickOutside);
+  }
+
+  // ฟังก์ชันเพิ่มเติมสำหรับการปิดโมดัลเมื่อกดปุ่ม "ESC"
+  function closeModalOnEsc(event) {
+    if (event.key === "Escape") {
+      closeModal();
+    }
+  }
+    </script>
+    
+    {% endblock %}
+    

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Compare Woods{% endblock %}
+{% block morestyle %}
+<style>
+    .form-container {
+        background-color: #fff;
+        border-radius: 30px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin: 30px;
+        padding: 10px 30px 10px 30px;
+    }
+    .table th,
+    .table td {
+        border-right: 1px solid #ddd;
+    }
+    .table td img {
+        display: block;
+        margin: 0 auto; /* Center the images */
+    }
+    .card-img-top{
+        max-width: 400px;
+        height: auto;
+        border-radius: 15px;
+        margin: 0; /* ตั้งค่า margin เป็น 0 */
+        padding: 0; /* ตั้งค่า padding เป็น 0 */
+        display: block; /* ทำให้แน่ใจว่าภาพเป็น block-level element */
+        
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="form-container">
+    <div class="row topshift nopad nomargin">
+        <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
+            Compare Woods
+          </p>
+        <!-- <h1>Compare Woods</h1> -->
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="table-bordered">ชื่อ</th>
+                        {% for wood, wood_data in woods %}
+                        <th class="table-bordered">{{ wood.wood_name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th class="table-bordered">ชื่อวิทยาศาสตร์</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered">{{ wood_data['ชื่อวิทยาศาสตร์'] }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">ชื่อสามัญ</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered">{{ wood_data['ชื่อสามัญ'] }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">ชื่อพื้นเมือง</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered">{{ wood_data['ชื่อพื้นเมือง'] }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">วงศ์</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered">{{ wood_data['วงศ์'] }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">ลักษณะต้น</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered">{{ wood_data['ต้น'] }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">ลักษณะเปลือก</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered">{{ wood_data['เปลือก'] }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">โครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (cross section)</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered">{{ wood_data['โครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (cross section)'] }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">รูปต้น</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered"><img src="{{ url_for('static', filename='tree/' + wood_data['รูปต้น']) }}"
+                                class="card-img-top" alt="Tree Image" ></td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">รูปเปลือก</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered"><img src="{{ url_for('static', filename='bark/' + wood_data['รูปเปลือก']) }}"
+                                class="card-img-top" alt="Tree Image" ></td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">รูปใบ</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered"><img src="{{ url_for('static', filename='leaf/' + wood_data['รูปใบ']) }}"
+                                class="card-img-top" alt="Tree Image" ></td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">รูปดอก</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered"><img src="{{ url_for('static', filename='flower/' + wood_data['รูปดอก']) }}"
+                                class="card-img-top" alt="Tree Image" ></td>
+                        {% endfor %}
+                    </tr>
+
+                    <tr>
+                        <th class="table-bordered">รูปโครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered"><img src="{{ url_for('static', filename='data/' + wood_data['รูปโครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (cross section)']) }}"
+                                class="card-img-top" alt="Cross Section Image" style="width: 400px; height: auto"></td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="table-bordered">แหล่งอ้างอิง</th>
+                        {% for wood, wood_data in woods %}
+                        <td class="table-bordered">{% set my_enumerate = range(wood_data['แหล่งอ้างอิง'] | length) %}
+
+                            <ul>
+                                {% for index in my_enumerate %}
+                                {% set source = wood_data['แหล่งอ้างอิง'][index] %}
+                                <li><a class="text-content" href="{{ source }}">แหล่งอ้างอิงที่ {{ index + 1 }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+    <a href="{{ url_for('views_blueprint.woods_info') }}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back</a>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block morestyle %}
+<style>
+  /* body {
+      background-color: #f8f9fa;
+  } */
+  .image-preview {
+    object-fit: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 50%;
+    width: 400px;
+    /* ปรับขนาดรูปโปรไฟล์ตามต้องการ */
+    height: 400px;
+    /* ปรับขนาดรูปโปรไฟล์ตามต้องการ */
+    object-fit: cover;
+    /* ความสัมพันธ์ของรูปภาพกับองค์ประกอบ */
+  }
+
+  .card {
+    border: none;
+    /* border-radius: 15px; */
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .btn-upload {
+    background-color: #007bff;
+    color: white;
+    border-radius: 50px;
+  }
+
+  .btn-upload:hover {
+    background-color: #0056b3;
+  }
+
+  .file-name {
+    text-align: center;
+    margin-top: 10px;
+    font-style: italic;
+    color: #6c757d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .form-container {
+    background-color: #fff; /* พื้นหลังสีขาว */
+    border-radius: 30px; /* ขอบมุมมน */
+    /* padding: -10px;ระยะห่างภายใน */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+  }
+  
+</style>
+{% endblock %}
+
+{% block content %}
+<script src="https://www.google.com/recaptcha/api.js"></script>
+
+<script>
+  function onSubmit(token) {
+    document.getElementById("sign-up-form").submit();
+  }
+</script>
+
+<form id="sign-up-form" action="{{ url_for('auth_blueprint.sign_up') }}" method="POST" enctype="multipart/form-data">
+  <!-- <section class="vh-100"> -->
+    <div class="container h-100">
+      <div class="row d-flex justify-content-center align-items-center ">
+        <div class="form-container">
+          <!-- <div class="col"> -->
+          <!-- <div  class="card text-black" style="border-radius: 50px;"> -->
+          <div class="row g-0">
+
+            <div class="col-xl-6 justify-content-center align-items-center text-center" style="margin-top: 50px;">
+
+              <!-- <form class="text-center"> -->
+              <div class="card mt-md-4 p-4">
+                <div class="mb-3">
+
+                  <div id="imagePreview" class="mt-4 text-center">
+                    <img id="previewImg" class="img-fluid image-preview " src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Your image will appear here"
+                      style="justify-content: center; align-items: center; text-align: center">
+                    <div id="fileName" class="file-name"></div>
+                  </div>
+                </div>
+                <!-- <label for="imageInput" class="form-label">Choose an image</label> -->
+                <input class="form-control" type="file" id="profile_picture" accept="image/*" name="profile_picture">
+                <button type="button" class="btn btn-upload mt-2"><i class="fa-solid fa-upload"></i> Choose profile
+                  picture</button>
+              </div>
+              <!-- </form> -->
+              <!-- </form> -->
+            </div>
+
+
+            <div class="col-xl-6">
+
+              <div class="card-body p-md-5 text-black">
+                <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
+                  Sign up
+                </p>
+
+                <!-- <form class="mx-1 mx-md-4"> -->
+                <div class="d-flex flex-row align-items-center mb-2">
+                  <!-- <i class="fas fa-user fa-lg me-3 fa-fw"></i> -->
+                  <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                    <input type="text" class="form-control" id="firstName" name="firstName"
+                      placeholder="ชื่อจริงต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร" />
+                    <label class="form-label" for="form3Example1c">First Name</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-2">
+                  <!-- <i class="fas fa-user fa-lg me-3 fa-fw"></i> -->
+                  <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                    <input type="text" class="form-control" id="lastName" name="lastName"
+                      placeholder="นามสกุลต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร" />
+                    <label class="form-label" for="form3Example1c">Last Name</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-2">
+                  <!-- <i class="fas fa-user fa-lg me-3 fa-fw"></i> -->
+                  <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                    <input type="text" class="form-control" id="userName" name="userName"
+                      placeholder="ชื่อผู้ใช้ต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร" />
+                    <label class="form-label" for="form3Example1c">User Name</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-2">
+                  <!-- <i class="fas fa-envelope fa-lg me-3 fa-fw"></i> -->
+                  <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                    <input type="email" class="form-control" id="email" name="email"
+                      placeholder="Email ต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร" />
+                    <label class="form-label" for="form3Example3c">Your Email</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-2">
+                  <!-- <i class="fas fa-lock fa-lg me-3 fa-fw"></i> -->
+                  <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                    <input type="password" class="form-control" id="password1" name="password1"
+                      placeholder="Password ต้องมีขนาดตั้งแต่ 7 - 50 ตัวอักษร" />
+                    <label class="form-label" for="form3Example4c">Password</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-2">
+                  <!-- <i class="fas fa-key fa-lg me-3 fa-fw"></i> -->
+                  <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                    <input type="password" class="form-control" id="password2" name="password2"
+                      placeholder="Password ต้องมีขนาดตั้งแต่ 7 - 50 ตัวอักษร" />
+                    <label class="form-label" for="form3Example4cd">Repeat your password</label>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-row align-items-center mb-2">
+                  <!-- <i class="fas fa-key fa-lg me-3 fa-fw"></i> -->
+                  <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                    <select class="form-select" id="role" name="role" required>
+                      {% for role in roles %}
+                      <option value="{{ role.role_id }}">
+                        {{ role.role_name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                    <label class="form-label select-label">Choose option</label>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-center flex-column align-items-center mx-4 mb-3 mb-lg-4">
+                  <button type="submit" data-mdb-button-init data-mdb-ripple-init
+                    class="g-recaptcha btn btn-primary mb-2" data-sitekey="{{site_key}}" data-callback="onSubmit"
+                    data-action="submit">Submit</button>
+
+                  <a href="/login" class="btn btn-link">I am already member</a>
+                </div>
+                <!-- </form> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+</form>
+  <script>
+    document.querySelector('.btn-upload').addEventListener('click', function () {
+      document.getElementById('profile_picture').click();
+    });
+
+    // document.getElementById('profile_picture').addEventListener('change', function (event) {
+    //   const file = event.target.files[0];
+    //   if (file) {
+    //     const reader = new FileReader();
+    //     reader.onload = function (e) {
+    //       const previewImg = document.getElementById('previewImg');
+    //       const fileName = document.getElementById('fileName');
+    //       previewImg.src = e.target.result;
+    //       previewImg.style.display = 'block';
+    //       fileName.textContent = file.name;
+    //     };
+    //     reader.readAsDataURL(file);
+    //   }
+    // });
+
+    document.getElementById('profile_picture').addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const previewImg = document.getElementById('previewImg');
+          const fileName = document.getElementById('fileName');
+          previewImg.src = e.target.result;
+          previewImg.style.display = 'block';
+          fileName.textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+  </script>
+
+{% endblock %}

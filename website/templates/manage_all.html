@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Identification{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Manage Roles, Woods, and Sources</h1>
+
+    <div class="section">
+        <h2>Roles</h2>
+        <form method="POST">
+            {{ role_form.hidden_tag() }}
+            {{ role_form.role_name.label }} {{ role_form.role_name() }}
+            {{ role_form.submit() }}
+        </form>
+        <table class="table table-bordered">
+            <tr>
+                <th>Role Name</th>
+                <th>Actions</th>
+            </tr>
+            {% for role in roles %}
+            <tr>
+                <td>{{ role.role_name }}</td>
+                <td>
+                    <a href="{{ url_for('manage_blueprint.edit_item', type='role', id=role.role_id) }}">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Woods</h2>
+        <form method="POST">
+            {{ wood_form.hidden_tag() }}
+            {{ wood_form.wood_name.label }} {{ wood_form.wood_name() }}
+            {{ wood_form.wood_nickname.label }} {{ wood_form.wood_nickname() }}
+            {{ wood_form.submit() }}
+        </form>
+        <table class="table table-bordered">
+            <tr>
+                <th>Wood Name</th>
+                <th>Wood Nickname</th>
+                <th>Actions</th>
+            </tr>
+            {% for wood in woods %}
+            <tr>
+                <td>{{ wood.wood_name }}</td>
+                <td>{{ wood.wood_nickname }}</td>
+                <td>
+                    <a href="{{ url_for('manage_blueprint.edit_item', type='wood', id=wood.wood_id) }}">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Sources</h2>
+        <form method="POST">
+            {{ source_form.hidden_tag() }}
+            {{ source_form.source_name.label }} {{ source_form.source_name() }}
+            {{ source_form.submit() }}
+        </form>
+        <table class="table table-bordered">
+            <tr>
+                <th>Source Name</th>
+                <th>Actions</th>
+            </tr>
+            {% for source in sources %}
+            <tr>
+                <td>{{ source.source_name }}</td>
+                <td>
+                    <a href="{{ url_for('manage_blueprint.edit_item', type='source', id=source.source_id) }}">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

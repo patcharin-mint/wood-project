@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}Prediction History{% endblock %}
+{% block morestyle %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  #compare-box {
+    position: fixed;
+    width: 90%;
+    max-width: 400px;
+    bottom: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    background-color: #dfe4d4;
+    transition: all .3s ease-out;
+    z-index: 999;
+    border-radius: 10px;
+  }
+  #compare-box.active {
+    bottom: 0;
+  }
+  .compare-button-box {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .compare-button-box li {
+    margin-left: 10px;
+  }
+  /* .compare-button-box button {
+    color: white;
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+  } */
+  /* .btn {
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+  } */
+  .btn-success {
+    background-color: #1c8835;
+  }
+  .btn-secondary {
+    background-color: #6c757d;
+  }
+  * {
+    outline: none;
+    box-sizing: border-box;
+  }
+
+
+
+</style>
+{% endblock %}
+{% block content %}
+
+<p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
+  Wood Information
+</p>
+
+<div class="container">
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 justify-content-center">
+    <form method="POST" action="{{ url_for('views_blueprint.woods_info') }}">
+      <div class="input-group justify-content-center">
+        <div class="form-outline" data-mdb-input-init>
+          <input type="text" name="search" class="form-control" placeholder="Search wood name" style="width: 350px; height: 40px; font-size: 1.25rem;" />
+        </div>
+        <button id="search-button" type="submit" class="btn btn-primary" style="height: 40px; font-size: 1.25rem;">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<form id="compare_form" method="POST" action="{{ url_for('views_blueprint.compare_woods') }}">
+  <div class="container mt-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+      {%  for wood, wood_data in woods %}
+      <div class="col mx-auto" style="margin-bottom: 20px;">
+        <div class="card shadow-sm">
+
+              <a href="{{ url_for('views_blueprint.wood_detail', wood_id=wood.wood_id) }}">
+                <img src="{{ url_for('static', filename='tree/' + wood_data['รูปต้น']) }}" 
+                     class="bd-placeholder-img card-img-top" style="height: 500px;" alt="Tree Image">
+              </a>
+              
+          <div class="card-body text-center mt-3">
+            <!-- <p class="card-text text-center"> -->
+              <a style="text-decoration: none; color: inherit;"
+                href="{{ url_for('views_blueprint.wood_detail', wood_id=wood.wood_id) }}">
+                <h6 style="font-size: 20px;">{{ wood_data['ชื่อ'] }}</h6>
+
+                <div class="text-muted" style="font-size: 20px;">
+                  {% set scientific_name = wood_data['ชื่อวิทยาศาสตร์'].split(' ') %}
+                  <i>{{ scientific_name[0] }} {{ scientific_name[1] }}</i> {% for word in
+                  scientific_name[2:] %}{{ word }} {% endfor %}
+                </div>
+              </a>
+            <!-- </p> -->
+            <hr>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="btn-group">
+                <input class="form-check-input" type="checkbox" name="compare_woods" value="{{ wood.wood_id }}" 
+                  onclick="handleCompareCheckbox(this)"
+                  style="width: 20px; height: 20px; ">
+                  <label style="font-size: 18px;">&nbsp;Compare</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</form>
+
+<div id="compare-box">
+  <ul class="compare-button-box">
+    <li>
+      <button class="btn btn-success" id="compare-submit" type="button" onclick="submitCompare()">
+        <i class="fa fa-code-compare"></i> เปรียบเทียบ (<span id="compare-count">0</span>)
+      </button>
+    </li>
+    <li>
+      <button class="btn btn-secondary" id="clear-compare" type="button" onclick="clearCompare()">
+        <i class="fa-regular fa-circle-xmark"></i> ล้างตัวเลือก
+      </button>
+    </li>
+  </ul>
+</div>
+
+<script>
+  window.onload = function() {
+  clearCompare(); // เคลียร์รายการเปรียบเทียบไม้เมื่อโหลดหน้า
+  };
+
+  function handleCompareCheckbox(checkbox) {
+    var compareBox = document.getElementById("compare-box");
+    var compareCount = document.getElementById("compare-count");
+    var maxCompareCount = 3; // Maximum number of items allowed for comparison
+    
+    if (checkbox.checked) {
+        // Check if the maximum number of items is already selected
+      if (parseInt(compareCount.innerText) >= maxCompareCount) {
+        // Display a message indicating the maximum limit is reached
+        alert("You can only compare up to 3 items at a time.");
+        checkbox.checked = false; // Uncheck the newly selected checkbox
+        return;
+      }
+      // เพิ่มจำนวนรายการเปรียบเทียบ
+      compareCount.innerText = parseInt(compareCount.innerText) + 1;
+      
+      // แสดง compare box
+      compareBox.classList.add("active");
+    } else {
+      // ลดจำนวนรายการเปรียบเทียบ
+      compareCount.innerText = parseInt(compareCount.innerText) - 1;
+      
+      // ซ่อน compare box หากไม่มีรายการเปรียบเทียบ
+      if (parseInt(compareCount.innerText) === 0) {
+        compareBox.classList.remove("active");
+      }
+    }
+  }
+
+  function clearCompare() {
+    var compareBox = document.getElementById("compare-box");
+    var compareCount = document.getElementById("compare-count");
+    
+    // รีเซ็ตจำนวนรายการเปรียบเทียบ
+    compareCount.innerText = 0;
+    
+    // ยกเลิกการเลือก checkbox ทั้งหมด
+    var checkboxes = document.getElementsByName("compare_woods");
+    for (var i = 0; i < checkboxes.length; i++) {
+      checkboxes[i].checked = false;
+    }
+    
+    // ซ่อน compare box
+    compareBox.classList.remove("active");
+  }
+
+  function submitCompare() {
+    document.getElementById("compare_form").submit();
+  }
+
+
+
+//   // เมื่อมีการพิมพ์ในช่องค้นหา
+// document.querySelector('input[name="search"]').addEventListener('input', function() {
+//   var searchValue = this.value.trim().toLowerCase(); // รับค่าข้อความและทำให้เป็นตัวพิมพ์เล็กทั้งหมดและตัดช่องว่างด้านหน้าและด้านหลัง
+  
+//   // ดึงรายการไม้ทั้งหมด
+//   var woods = document.querySelectorAll('.card');
+  
+//   // สร้างอาร์เรย์เปล่าเพื่อเก็บรายการไม้ที่ตรงกับการค้นหา
+//   var matchingWoods = [];
+  
+//   // วนลูปตรวจสอบรายการไม้แต่ละรายการ
+//   woods.forEach(function(wood) {
+//     var woodName = wood.querySelector('a').textContent.trim().toLowerCase(); // รับชื่อไม้และทำให้เป็นตัวพิมพ์เล็กทั้งหมดและตัดช่องว่างด้านหน้าและด้านหลัง
+      
+//     // ถ้าชื่อไม้ตรงกับคำค้นหา ให้เพิ่มรายการไม้นี้เข้าไปในอาร์เรย์ matchingWoods
+//     if (woodName.includes(searchValue)) {
+//       matchingWoods.push(wood);
+//     } else {
+//       wood.style.display = 'none'; // ถ้าไม่ตรงกับคำค้นหาให้ซ่อนรายการไม้นั้น
+//     }
+//   });
+
+//   // วนลูปเรียงลำดับและแสดงรายการไม้ที่ตรงกับการค้นหา
+//   matchingWoods.forEach(function(wood) {
+//     wood.style.display = 'block';
+//   });
+// });
+
+
+</script>
+
+{% endblock %}

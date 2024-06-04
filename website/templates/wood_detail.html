@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}Tree Information{% endblock %}
+
+{% block morestyle %}
+<style>
+  .form-container {
+    background-color: #fff;
+    /* พื้นหลังสีขาว */
+    border-radius: 30px;
+    /* ขอบมุมมน */
+    /* padding: 20 px;  ระยะห่างภายใน */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* เพิ่มเงา */
+    margin: 30px; /* ระยะห่างทุกด้านเท่ากัน 5px */
+    padding: 10px 30px 10px 30px; /* ระยะห่างด้านบน 10px, ด้านขวา 20px, ด้านล่าง 30px, ด้านซ้าย 40px */
+  }
+
+  .image-tree{
+    border-radius: 30px;
+    max-height: 750px;
+    max-width: 600px;
+    padding: 15px 5px 15px 10px; /* ระยะห่างด้านบน 10px, ด้านขวา 20px, ด้านล่าง 30px, ด้านซ้าย 40px */
+  }
+
+  .text-big{
+    font-size: 20px;
+  }
+  .text-content{
+    font-size: 18px;
+    /* font-family: "ibm-plex-thai", sans-serif;
+    font-weight: 500;
+    font-style: normal; */
+  }
+
+  /* ซ่อนโมดัลเริ่มต้น */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    overflow: auto;
+  }
+
+  /* สไตล์รูปภาพในโมดัล */
+  .modal-content {
+    margin: auto;
+    display: block;
+    width: auto;
+    max-width: 80%;
+    max-height: 80%;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* ปุ่มปิด */
+  .close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #fff;
+    font-size: 80px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+<!-- <div class="container-xl"> -->
+<div class="form-container">
+  <div class="row topshift nopad nomargin">
+    <div class="col-md-5 nopad">
+      <div class="image-plant">
+        <img src="{{ url_for('static', filename='tree/' + wood_data['รูปต้น']) }}" class="image-tree"
+        onclick="openModal('{{ url_for('static', filename='tree/' + wood_data['รูปต้น']) }}')">
+      </div>
+      {% if wood_data['รูปเปลือก'] %}
+      <div class="image-plant">
+        <img src="{{ url_for('static', filename='bark/' + wood_data['รูปเปลือก']) }}" class="image-tree"
+        onclick="openModal('{{ url_for('static', filename='bark/' + wood_data['รูปเปลือก']) }}')">
+      </div>
+      {% endif %}
+      <div class="image-plant">
+        <img src="{{ url_for('static', filename='leaf/' + wood_data['รูปใบ']) }}" class="image-tree"
+        onclick="openModal('{{ url_for('static', filename='leaf/' + wood_data['รูปใบ']) }}')">
+      </div>
+
+      <div class="image-plant">
+        <img src="{{ url_for('static', filename='flower/' + wood_data['รูปดอก']) }}" class="image-tree"
+        onclick="openModal('{{ url_for('static', filename='flower/' + wood_data['รูปดอก']) }}')">
+      </div>
+
+    </div>
+    <div class="col-md-7">
+      <div id="result">
+        <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
+          {{ wood_data['ชื่อ'] }} <br>
+          <!-- {{ wood_data['ชื่อวิทยาศาสตร์'] }} -->
+          {% set scientific_name = wood_data['ชื่อวิทยาศาสตร์'].split(' ') %}
+          <i>{{ scientific_name[0] }} {{ scientific_name[1] }}</i> {% for word in scientific_name[2:] %}{{ word }} {% endfor %}
+          <hr>
+        </p>
+
+        <p class="text-big" style="text-align: justify; "><strong>ชื่อสามัญ</strong> &nbsp; &nbsp; &nbsp;</p>
+        <p class="text-content" style="text-align: justify;">&nbsp; &nbsp; &nbsp;{{ wood_data['ชื่อสามัญ'] }}</p>
+        <hr>
+        <p class="text-big" style="text-align: justify;"><strong>ชื่อพื้นเมือง </strong>&nbsp; &nbsp;</p>
+        <p class="text-content" style="text-align: justify;">&nbsp; &nbsp; &nbsp;{{ wood_data['ชื่อพื้นเมือง'] }}</p>
+        <hr>
+        <p class="text-big" style="text-align: justify;"><strong>วงศ์</strong> &nbsp; &nbsp; &nbsp;</p>
+        <p class="text-content" style="text-align: justify;">&nbsp; &nbsp;&nbsp;{{ wood_data['วงศ์'] }}</p>
+        <hr>
+        <p class="text-big" style="text-align: justify;"><strong>ลักษณะต้น &nbsp;</strong> &nbsp; &nbsp;</p>
+        <p class="text-content" style="text-align: justify;">&nbsp; &nbsp; &nbsp;{{ wood_data['ต้น'] }}</p>
+        <hr>
+        <p class="text-big" style="text-align: justify;"><strong>ลักษณะเปลือก</strong> &nbsp; &nbsp; &nbsp;</p>
+        <p class="text-content" style="text-align: justify;">&nbsp; &nbsp;&nbsp;{{ wood_data['เปลือก'] }}</p>
+        <hr>
+        <p class="text-big" style="text-align: justify;"><strong>ลักษณะใบ</strong> &nbsp; &nbsp; &nbsp;</p>
+        <p class="text-content" style="text-align: justify;">&nbsp; &nbsp;&nbsp;{{ wood_data['ใบ'] }}</p>
+        <hr>
+        <p class="text-big" style="text-align: justify;"><strong>ลักษณะดอก</strong> &nbsp; &nbsp; &nbsp;</p>
+        <p class="text-content" style="text-align: justify;">&nbsp; &nbsp;&nbsp;{{ wood_data['ดอก'] }}</p>
+        <hr>
+        <p class="text-big" style="text-align: justify;"><strong>ลักษณะผลและเมล็ด</strong> &nbsp; &nbsp; &nbsp;</p>
+        <p class="text-content" style="text-align: justify;">&nbsp; &nbsp;&nbsp;{{ wood_data['ผลและเมล็ด'] }}</p>
+        <hr>
+        <p class="text-big" style="text-align: justify;"><strong>โครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (cross section)</strong> &nbsp; &nbsp; &nbsp;</p>
+        <p class="text-content" style="text-align: justify;">&nbsp; &nbsp;&nbsp;{{ wood_data['โครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (cross section)'] }}</p>
+        <hr>
+        <p class="text-big" style="text-align: justify;"><strong>Cross Section Image</strong> &nbsp; &nbsp; &nbsp;</p>
+        <img src="{{ url_for('static', filename='data/' + wood_data['รูปโครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (cross section)']) }}"
+        alt="Cross Section Image" style="width: 400px; height: auto; display: block; margin: 0 auto; border-radius: 30px;"
+        onclick="openModal('{{ url_for('static', filename='data/' + wood_data['รูปโครงสร้างของเนื้อไม้เมื่อตัดทางด้านขวาง (cross section)']) }}')">
+
+        <div id="myModal" class="modal">
+          <span class="close" onclick="closeModal()">&times;</span>
+          <img class="modal-content" id="img01" />
+        </div>
+
+        <hr>
+        <p class="text-big" style="text-align: justify;"><strong>แหล่งอ้างอิง</strong> &nbsp; &nbsp; &nbsp;</p>
+
+
+        {% set my_enumerate = range(wood_data['แหล่งอ้างอิง'] | length) %}
+
+        <ul>
+          {% for index in my_enumerate %}
+          {% set source = wood_data['แหล่งอ้างอิง'][index] %}
+          <li><a class="text-content" href="{{ source }}">แหล่งอ้างอิงที่ {{ index + 1 }}</a></li>
+          {% endfor %}
+      </ul>
+      
+      
+      </div>
+    </div>
+  </div>
+  <a onclick="goBack()" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back</a>
+</div>
+</div>
+
+
+<script>
+    function goBack() {
+      window.history.back();
+  }
+  // เปิดโมดัลและแสดงรูปภาพเมื่อคลิกที่รูป
+  function openModal(imageSrc) {
+    var modal = document.getElementById("myModal");
+    var modalImg = document.getElementById("img01");
+    modal.style.display = "block";
+    modalImg.src = imageSrc;
+
+    // เพิ่มการตรวจสอบการกดปุ่ม "ESC"
+    document.addEventListener("keydown", closeModalOnEsc);
+
+    // เพิ่มการตรวจสอบการคลิกที่พื้นหลังของโมดัล
+    modal.addEventListener("click", closeModalOnClickOutside);
+  }
+
+  // ปิดโมดัลเมื่อคลิกที่พื้นหลัง
+  function closeModalOnClickOutside(event) {
+    var modalContent = document.querySelector(".modal-content");
+    if (!modalContent.contains(event.target)) {
+      closeModal();
+    }
+  }
+
+  // ปิดโมดัลเมื่อคลิกที่ปุ่มปิดหรือกดปุ่ม "ESC"
+  function closeModal() {
+    var modal = document.getElementById("myModal");
+    modal.style.display = "none";
+
+    // ลบการตรวจสอบการกดปุ่ม "ESC" เมื่อปิดโมดัล
+    document.removeEventListener("keydown", closeModalOnEsc);
+
+    // ลบการตรวจสอบการคลิกที่พื้นหลังของโมดัลเมื่อปิดโมดัล
+    modal.removeEventListener("click", closeModalOnClickOutside);
+  }
+
+  // ฟังก์ชันเพิ่มเติมสำหรับการปิดโมดัลเมื่อกดปุ่ม "ESC"
+  function closeModalOnEsc(event) {
+    if (event.key === "Escape") {
+      closeModal();
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block morestyle %}
+<style>
+    .image-preview {
+        max-height: 400px;
+        max-width: 400px;
+        object-fit: cover;
+        border-radius: 15px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-upload {
+        background-color: #007bff;
+        color: white;
+        border-radius: 50px;
+    }
+
+    .btn-upload:hover {
+        background-color: #0056b3;
+    }
+
+    .file-name {
+        text-align: center;
+        margin-top: 10px;
+        font-style: italic;
+        color: #6c757d;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    .profile-picture {
+        border-radius: 50%;
+        width: 400px;
+        height: 400px;
+        object-fit: cover;
+        margin-top: 50px;
+    }
+    
+    .table-responsive {
+        margin-top: 60px;
+        overflow: auto;
+    }
+
+    .form-container {
+        padding-bottom: 100px;
+        background-color: #fff;
+        border-radius: 30px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .section {
+        min-height: 100vh;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if edit %}
+<form method="POST" action="{{ url_for('auth_blueprint.update_profile') }}" enctype="multipart/form-data">
+    <section class="vh-100">
+        <div class="container h-100">
+            <div class="form-container">
+                <div class="row g-0">
+                    <div class="col-xl-6 justify-content-center align-items-center text-center" style="margin-top: 100px;">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <img id="profile_picture_preview" src="{{ url_for('static', filename='profiles/' + user.profile_picture if user.profile_picture else 'images/default_profile.jpg') }}" 
+                                class="profile-picture card-img-top"
+                                alt="Profile Picture"/>
+                            </div>
+                            <div class="mb-3">
+                                <input class="form-control" type="file" id="profile_picture" name="profile_picture" onchange="previewProfilePicture(event)">
+                                <label for="profile_picture" class="btn btn-upload mt-2"><i class="fa-solid fa-upload"></i> Choose new profile picture</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="card-body p-md-5 text-black">
+                            <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Update profile</p>
+
+                            <div class="d-flex flex-row align-items-center mb-2">
+                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                    <input type="text" class="form-control" id="userName" name="userName"
+                                        placeholder="ชื่อผู้ใช้ต้องมีขนาดตั้งแต่ 4 - 50 ตัวอักษร"
+                                        value="{{ user.user_name }}" required />
+                                    <label class="form-label" for="userName">Username</label>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-row align-items-center mb-2">
+                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                    <input type="text" class="form-control" id="firstName" name="firstName"
+                                        placeholder="ชื่อจริงต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร"
+                                        value="{{ user.first_name }}" required />
+                                    <label class="form-label" for="firstName">First Name</label>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-row align-items-center mb-2">
+                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                    <input type="text" class="form-control" id="lastName" name="lastName"
+                                        placeholder="นามสกุลต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร"
+                                        value="{{ user.last_name }}" required />
+                                    <label class="form-label" for="lastName">Last Name</label>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-row align-items-center mb-2">
+                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                    <input type="email" class="form-control" id="email" name="email"
+                                        placeholder="Email ต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร"
+                                        value="{{ user.email }}" required />
+                                    <label class="form-label" for="email">Email</label>
+                                </div>
+                            </div>
+
+                            {% if user.role.role_name != 'Admin' %}
+                            <div class="d-flex flex-row align-items-center mb-2">
+                                <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                    <select class="form-select" id="role" name="role" required>
+                                        {% for role in roles %}
+                                            {% if role.role_name != "Admin" and  role.role_name != "เจ้าหน้าที่ป่าไม้" %}
+                                                <option value="{{ role.role_id }}">{{ role.role_name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <label class="form-label" for="role">Role</label>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="d-flex flex-row align-items-center mb-2">
+                                <div data-mdb-input-init class="form-check ">
+                                    <input type="checkbox" class="form-check-input" id="changePasswordCheckbox" name="changePasswordCheckbox">
+                                    <label class="form-label" for="changePasswordCheckbox">Change Password</label>
+                                </div>
+                            </div>
+
+                            <div id="passwordFields" style="display: none;">
+                                <div class="d-flex flex-row align-items-center mb-2">
+                                    <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                        <input type="password" class="form-control" 
+                                            placeholder="Password ต้องมีขนาดตั้งแต่ 7 - 50 ตัวอักษร"
+                                            id="password" name="password" >
+                                        <label class="form-label" for="password">Current Password</label>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-row align-items-center mb-2">
+                                    <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                        <input type="password" class="form-control" 
+                                            placeholder="Password ต้องมีขนาดตั้งแต่ 7 - 50 ตัวอักษร"
+                                            id="newPassword" name="newPassword" >
+                                        <label class="form-label" for="newPassword">New Password</label>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-row align-items-center mb-2">
+                                    <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                                        <input type="password" class="form-control" 
+                                            placeholder="Password ต้องมีขนาดตั้งแต่ 7 - 50 ตัวอักษร"
+                                            id="confirmNewPassword" name="confirmNewPassword" >
+                                        <label class="form-label" for="confirmNewPassword">Confirm New Password</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Save</button>&nbsp;&nbsp;
+                            <a href="{{ url_for('views_blueprint.profile') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+{% else %}
+<div class="container bootstrap snippets bootdey ">
+    <div class="panel-body inf-content">
+        <div class="form-container">
+        <div class="row justify-content-center align-items-center">
+            
+            <div class="col-md-4">
+                <img
+                    src="{% if user.profile_picture %}{{ url_for('static', filename='profiles/' + user.profile_picture) }}{% else %}{{ url_for('static', filename='images/default_profile.jpg') }}{% endif %}"
+                    class="profile-picture card-img-top"
+                    alt="Profile Picture"
+                />
+            </div>
+            <div class="col-md-6">
+                <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Profile</p>
+                <div class="table-responsive">
+                    <table class="table table-user-information">
+                        <tbody>
+                            <tr>
+                                <td><strong><span class="glyphicon glyphicon-user text-primary"></span> Name</strong></td>
+                                <td class="text">{{ user.first_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong><span class="glyphicon glyphicon-cloud text-primary"></span> Lastname</strong></td>
+                                <td class="text">{{ user.last_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong><span class="glyphicon glyphicon-bookmark text-primary"></span> Username</strong></td>
+                                <td class="text">{{ user.user_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong><span class="glyphicon glyphicon-envelope text-primary"></span> Email</strong></td>
+                                <td class="text">{{ user.email }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong><span class="glyphicon glyphicon-eye-open text-primary"></span> Role</strong></td>
+                                <td class="text">{{ user.role.role_name }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <form method="POST">
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                        
+                    </form>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    function previewProfilePicture(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById('profile_picture_preview');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function togglePasswordFields() {
+        const passwordFields = document.getElementById('passwordFields');
+        const changePasswordCheckbox = document.getElementById('changePasswordCheckbox');
+
+        if (changePasswordCheckbox.checked) {
+            passwordFields.style.display = 'block';
+        } else {
+            passwordFields.style.display = 'none';
+        }
+    }
+
+    document.getElementById('changePasswordCheckbox').addEventListener('change', togglePasswordFields);
+
+    togglePasswordFields();
+</script>
+{% endblock %}
