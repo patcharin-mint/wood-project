@@ -67,6 +67,14 @@
 {% endblock %}
 
 {% block content %}
+
+<!-- {% if get_flashed_messages() %}
+    <div class="alert alert-danger" role="alert">
+        {% for message in get_flashed_messages() %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %} -->
 {% if edit %}
 <form method="POST" action="{{ url_for('auth_blueprint.update_profile') }}" enctype="multipart/form-data">
     <section class="vh-100">

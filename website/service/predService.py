@@ -58,16 +58,39 @@ class PredictionForm(FlaskForm):
 
 
 
+# def createPredForm():
+#     form = PredictionForm()
+
+#     # กำหนด key ในการเรียงลำดับตามตัวอักษรภาษาไทย
+#     sorted_sources = sorted(Source.query.all(), key=lambda x: locale.strxfrm(x.source_name))
+#     sorted_woods = sorted(Wood.query.all(), key=lambda x: locale.strxfrm(x.wood_name))
+
+#     form.existing_source.choices = [(source.source_id, source.source_name) for source in sorted_sources]
+#     form.existing_wood.choices = [(wood.wood_id, wood.wood_name) for wood in sorted_woods]
+
+#     return form
+
+def italicize_first_two_words(text):
+    import re
+    match = re.search(r'\(([^)]+)\)', text)
+    if match:
+        content = match.group(1)
+        words = content.split()
+        if len(words) >= 2:
+            words[0] = f"<i>{words[0]}"
+            words[1] = f"{words[1]}</i>"
+            new_content = ' '.join(words)
+            return text.replace(content, new_content)
+    return text
 def createPredForm():
     form = PredictionForm()
 
-    # กำหนด key ในการเรียงลำดับตามตัวอักษรภาษาไทย
     sorted_sources = sorted(Source.query.all(), key=lambda x: locale.strxfrm(x.source_name))
     sorted_woods = sorted(Wood.query.all(), key=lambda x: locale.strxfrm(x.wood_name))
 
+    wood_choices = [(wood.wood_id, italicize_first_two_words(wood.wood_name)) for wood in sorted_woods]
+    form.existing_wood.choices = wood_choices
+
     form.existing_source.choices = [(source.source_id, source.source_name) for source in sorted_sources]
-    form.existing_wood.choices = [(wood.wood_id, wood.wood_name) for wood in sorted_woods]
 
     return form
-
-

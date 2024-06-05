@@ -174,7 +174,6 @@ def profile():
 
 
 
-
 @views_blueprint.route('/woods-info', methods=['GET', 'POST'])
 def woods_info():
     request.form.getlist('compare_woods')

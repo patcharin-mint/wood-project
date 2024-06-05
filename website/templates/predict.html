@@ -83,6 +83,11 @@
     text-decoration: none;
     cursor: pointer;
   }
+  /* ตัวอย่าง CSS ที่อาจมีผล */
+  i {
+      font-style: italic;
+  }
+
     </style>
     {% endblock %} {% block content %}
     
@@ -128,7 +133,15 @@
                   </div>
     
                   {{ form.existing_wood.label }} <br />
-                  {{ form.existing_wood(class="form-select") }} <br />
+                  <!-- {{ form.existing_wood(class="form-select") }} <br /> -->
+                  <select name="existing_wood" id="existing_wood" class="form-select">
+                      {% for value, label in form.existing_wood.choices %}
+                          <option value="{{ value }}">{{ label|safe }}</option>
+                      {% endfor %}
+                  </select>
+                  
+                  
+                
                   {{ form.existing_source.label }} <br />
                   {{ form.existing_source(class="form-select") }} <br />
     
