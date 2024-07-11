@@ -27,8 +27,8 @@ conn = pymysql.connect(
     db='wood-identification-project'
 )
 
-model = load_model('VGG19.keras')
-
+# model = load_model('VGG16.keras')
+model = load_model(r'VGG16.keras')
 
 class PredictionForm(FlaskForm):
     # InputRequired() เป็นตัวตรวจสอบว่าฟิลด์ว่างเปล่าหรือไม่

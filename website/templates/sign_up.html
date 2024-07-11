@@ -112,7 +112,7 @@
 
               <div class="card-body p-md-5 text-black">
                 <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">
-                  Sign up
+                  Create Account
                 </p>
 
                 <!-- <form class="mx-1 mx-md-4"> -->
@@ -148,7 +148,7 @@
                   <div data-mdb-input-init class="form-outline flex-fill mb-0">
                     <input type="email" class="form-control" id="email" name="email"
                       placeholder="Email ต้องมีขนาดตั้งแต่ 2 - 50 ตัวอักษร" />
-                    <label class="form-label" for="form3Example3c">Your Email</label>
+                    <label class="form-label" for="form3Example3c">Email</label>
                   </div>
                 </div>
 
@@ -166,7 +166,7 @@
                   <div data-mdb-input-init class="form-outline flex-fill mb-0">
                     <input type="password" class="form-control" id="password2" name="password2"
                       placeholder="Password ต้องมีขนาดตั้งแต่ 7 - 50 ตัวอักษร" />
-                    <label class="form-label" for="form3Example4cd">Repeat your password</label>
+                    <label class="form-label" for="form3Example4cd">Confirm password</label>
                   </div>
                 </div>
 
@@ -180,14 +180,14 @@
                       </option>
                       {% endfor %}
                     </select>
-                    <label class="form-label select-label">Choose option</label>
+                    <label class="form-label select-label">Role</label>
                   </div>
                 </div>
 
                 <div class="d-flex justify-content-center flex-column align-items-center mx-4 mb-3 mb-lg-4">
                   <button type="submit" data-mdb-button-init data-mdb-ripple-init
                     class="g-recaptcha btn btn-primary mb-2" data-sitekey="{{site_key}}" data-callback="onSubmit"
-                    data-action="submit">Submit</button>
+                    data-action="submit">Create Account</button>
 
                   <a href="/login" class="btn btn-link">I am already member</a>
                 </div>

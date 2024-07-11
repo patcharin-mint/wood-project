@@ -12,7 +12,7 @@ import locale
 CLASS_NAMES = ['ching', 'euca', 'kapi', 'payung', 'pradu', 'sak', 'takian', 'teng', 'yangna', 'yangpara']
 CLASS_NAMES_TH = ['ชิงชัน (Dalbergia oliveri)', 'ยูคาลิปตัส (Eucalyptus globulus)', 'กะพี้เขาควาย (Dalbergia cultrata Graham ex Benth.)', 'พะยูง (Dalbergia cochinchinensis)', 'ประดู่ (Pterocarpus macrocarpus)', 'สัก (Tectona grandis)', 'ตะเคียน (Hopea odorata)', 'เต็ง (Shorea obtusa Wall)', 'ยางนา (Dipterocarpus alatus)', 'ยางพารา (Hevea brasiliensis)']
 
-model = load_model('VGG19.keras')
+model = load_model(r'VGG16.keras')
 
 # ตั้งค่า locale เป็น 'th_TH.UTF-8' เพื่อให้ Python รู้จักการเรียงลำดับภาษาไทย
 locale.setlocale(locale.LC_COLLATE, 'th_TH.UTF-8')
