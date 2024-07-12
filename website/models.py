@@ -47,7 +47,7 @@ class User(db.Model, UserMixin):
     profile_picture = db.Column(db.String(100), unique=True)
 
     role = db.relationship('Role', backref='users') 
-    posts = db.relationship('Post')
+    # posts = db.relationship('Post')
 
     def get_id(self):
         return str(self.user_id)
@@ -88,28 +88,28 @@ class Source(db.Model):
         return str(self.source_name)
 
 
-class Post(db.Model):
-    post_id = db.Column(db.Integer, primary_key=True)
-    user_post_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
-    user_role_id = db.Column(db.Integer, db.ForeignKey('role.role_id'), nullable=False)
-    datetime = db.Column(db.DateTime(timezone=True), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'), nullable=False)
+# class Post(db.Model):
+#     post_id = db.Column(db.Integer, primary_key=True)
+#     user_post_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+#     user_role_id = db.Column(db.Integer, db.ForeignKey('role.role_id'), nullable=False)
+#     datetime = db.Column(db.DateTime(timezone=True), nullable=False)
+#     content = db.Column(db.Text, nullable=False)
+#     category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'), nullable=False)
 
-    files = db.relationship('File')
-    role = db.relationship('Role', foreign_keys=[user_role_id])
-    user_post = db.relationship('User', foreign_keys=[user_post_id])
-    category_post = db.relationship('Category', foreign_keys=[category_id])
-
-
-class File(db.Model):
-    file_id = db.Column(db.Integer, primary_key=True)
-    file_name = db.Column(db.String(100), unique=True, nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
+#     files = db.relationship('File')
+#     role = db.relationship('Role', foreign_keys=[user_role_id])
+#     user_post = db.relationship('User', foreign_keys=[user_post_id])
+#     category_post = db.relationship('Category', foreign_keys=[category_id])
 
 
-class Category(db.Model):
-    category_id = db.Column(db.Integer, primary_key=True)
-    category_name = db.Column(db.String(20), unique=True, nullable=False)
+# class File(db.Model):
+#     file_id = db.Column(db.Integer, primary_key=True)
+#     file_name = db.Column(db.String(100), unique=True, nullable=False)
+#     post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
+
+
+# class Category(db.Model):
+#     category_id = db.Column(db.Integer, primary_key=True)
+#     category_name = db.Column(db.String(20), unique=True, nullable=False)
 
 

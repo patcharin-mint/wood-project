@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, request, flash, redirect, abort, send_from_directory, url_for
 from flask_login import login_required, current_user
-from .service.predService import predictTopN, CLASS_NAMES, PredictionForm, CLASS_NAMES_TH, createPredForm
+from .service.predService import predictTopN, createPredForm
 from werkzeug.utils import secure_filename
 import os
 from . import db, create_app
-from .models import Source, PredictRecord, User, Wood, Role, Post, File, Category
+from .models import Source, PredictRecord, User, Wood, Role
 import datetime
 import locale
 import json
@@ -111,9 +111,9 @@ def prediction():
                 )
                 db.session.add(record)
                 db.session.commit()
-            return render_template("predict.html", form=form, image_file=new_filename, predictions=predictions, source=selected_source, user=current_user, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
+            return render_template("predict.html", form=form, image_file=new_filename, predictions=predictions, source=selected_source, user=current_user)
         
-    return render_template("predict.html", form=form, user=current_user, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
+    return render_template("predict.html", form=form, user=current_user)
 
 
 
@@ -194,45 +194,45 @@ def compare_woods():
 
 
 
-@views_blueprint.route('/community', methods=['GET', 'POST'])
-def community():
+# @views_blueprint.route('/community', methods=['GET', 'POST'])
+# def community():
 
-    sorted_categorys = Category.query.order_by(Category.category_name).all()
-    search_query = request.form.get('search', '').strip()
+#     sorted_categorys = Category.query.order_by(Category.category_name).all()
+#     search_query = request.form.get('search', '').strip()
 
-    if request.method == 'POST':
-        content = request.form.get('post')
-        category_id = request.form.get('category')
+#     if request.method == 'POST':
+#         content = request.form.get('post')
+#         category_id = request.form.get('category')
 
-        if not content:
-            flash('เนื้อหาของโพสต์ไม่สามารถเว้นว่างได้', 'error')
-            return redirect(url_for('views_blueprint.community'))
+#         if not content:
+#             flash('เนื้อหาของโพสต์ไม่สามารถเว้นว่างได้', 'error')
+#             return redirect(url_for('views_blueprint.community'))
         
-        new_post = Post(user_post_id=current_user.user_id, user_role_id=current_user.role_id, datetime=datetime.datetime.now(), content=content, category_id=category_id)
-        db.session.add(new_post)
-        db.session.commit()
+#         new_post = Post(user_post_id=current_user.user_id, user_role_id=current_user.role_id, datetime=datetime.datetime.now(), content=content, category_id=category_id)
+#         db.session.add(new_post)
+#         db.session.commit()
 
-        files = request.files.getlist('files')
+#         files = request.files.getlist('files')
         
-        num = 1
-        for file in files:
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                print(filename)
-                new_filename = f"{current_user.user_id}_post{new_post.post_id}x{num}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%S')}.jpg"
-                file_path = os.path.join(UPLOAD_FOLDER, new_filename)
-                file.save(file_path)
-                new_file = File(file_name=new_filename, post_id=new_post.post_id)
-                db.session.add(new_file)
-                db.session.commit()
-                num = num + 1 
+#         num = 1
+#         for file in files:
+#             if file and allowed_file(file.filename):
+#                 filename = secure_filename(file.filename)
+#                 print(filename)
+#                 new_filename = f"{current_user.user_id}_post{new_post.post_id}x{num}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S%S')}.jpg"
+#                 file_path = os.path.join(UPLOAD_FOLDER, new_filename)
+#                 file.save(file_path)
+#                 new_file = File(file_name=new_filename, post_id=new_post.post_id)
+#                 db.session.add(new_file)
+#                 db.session.commit()
+#                 num = num + 1 
         
-        db.session.commit()
-        return redirect(url_for('views_blueprint.community'))
+#         db.session.commit()
+#         return redirect(url_for('views_blueprint.community'))
     
-    if search_query:
-        posts = Post.query.filter(Post.category_post.any(category_name=search_query)).order_by(Post.datetime.desc()).all()
-    else:
-        posts = Post.query.order_by(Post.datetime.desc()).all()
+#     if search_query:
+#         posts = Post.query.filter(Post.category_post.any(category_name=search_query)).order_by(Post.datetime.desc()).all()
+#     else:
+#         posts = Post.query.order_by(Post.datetime.desc()).all()
 
-    return render_template("community.html", user=current_user, posts=posts, categorys=sorted_categorys)
+#     return render_template("community.html", user=current_user, posts=posts, categorys=sorted_categorys)

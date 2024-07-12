@@ -6,18 +6,36 @@
     <h1>ชุมชนคนรักไม้</h1>
 </div>
 
+<div class="form-group">
+    <label for="search_source">Source</label>
+    <select name="search_source" id="search_source" class="form-control">
+      <option value="">Select category</option>
+      {% for category in categorys %}
+        <option value="{{ category.category_id }}">{{ category.category_name }}</option>
+      {% endfor %}
+    </select>
+</div>
+
 {% if user.is_authenticated %}
 <form method="POST" enctype="multipart/form-data">
     <label for="post">โพสต์:</label>
     <textarea rows="5" cols="50" name="post" id="post"></textarea>
+    
+    <label for="category">หมวดหมู่:</label>
+    <select name="category" id="category" required>
+        {% for category in categorys %}
+            <option value="{{ category.category_id }}">{{ category.category_name }}</option>
+        {% endfor %}
+    </select>
+
     <label for="files">อัปโหลดรูปภาพ:</label>
     <input type="file" name="files" id="files" multiple>
+    
     <div align="center">
         <button type="submit">โพสต์</button>
     </div>
 </form>
 {% endif %}
-
 
 {% for post in posts %}
 <div class="row">
@@ -26,6 +44,8 @@
             <div class="card-body">
                 <p class="card-text">{{ post.content }}</p>
                 <p class="card-text">วันที่: {{ post.datetime.strftime('%d %b %Y %H:%M:%S') }}</p>
+                <p class="card-text">หมวดหมู่: {{ post.category_post.category_name }}</p>
+                <p class="card-text">ผู้โพสต์: {{ post.user_post.first_name }} {{ post.user_post.last_name }}</p>
                 <div class="row">
                     {% for file in post.files %}
                     <div class="col-md-4">
@@ -38,5 +58,11 @@
     </div>
 </div>
 {% endfor %}
+
+<script>
+    document.getElementById('searchInput').addEventListener('input', function() {
+        document.getElementById('searchForm').submit();
+    });
+</script>
 
 {% endblock %}

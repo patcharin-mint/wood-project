@@ -3,7 +3,7 @@ from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db, create_app # =  from __init__.py import db
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import Role, Source, Wood, Category
+from .models import Role, Source, Wood
 from werkzeug.utils import secure_filename
 import os
 import locale
@@ -47,13 +47,13 @@ def sign_up():
         
         print(request.form)
 
-        secret_response = request.form['g-recaptcha-response']
+        # secret_response = request.form['g-recaptcha-response']
 
-        verify_response = requests.post(url=f"{create_app().config['VERIFY_URL']}?secret={create_app().config['RECAPTCHA_SECRET_KEY']}&response={secret_response}").json()
+        # verify_response = requests.post(url=f"{create_app().config['VERIFY_URL']}?secret={create_app().config['RECAPTCHA_SECRET_KEY']}&response={secret_response}").json()
 
 
-        if verify_response['success'] == False or verify_response['score'] < 0.5:
-            abort(401)
+        # if verify_response['success'] == False or verify_response['score'] < 0.5:
+        #     abort(401)
 
         email = request.form.get('email')
         first_name = request.form.get('firstName')
@@ -102,8 +102,8 @@ def sign_up():
             db.session.commit()
 
             return redirect(url_for('views_blueprint.home'))
-
-    return render_template("sign_up.html", user=current_user, roles=sorted_roles, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
+    return render_template("sign_up.html", user=current_user, roles=sorted_roles)
+    # return render_template("sign_up.html", user=current_user, roles=sorted_roles, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
 
 
 
@@ -114,13 +114,13 @@ def login():
 
         print(request.form)
 
-        secret_response = request.form['g-recaptcha-response']
+        # secret_response = request.form['g-recaptcha-response']
 
-        verify_response = requests.post(url=f"{create_app().config['VERIFY_URL']}?secret={create_app().config['RECAPTCHA_SECRET_KEY']}&response={secret_response}").json()
+        # verify_response = requests.post(url=f"{create_app().config['VERIFY_URL']}?secret={create_app().config['RECAPTCHA_SECRET_KEY']}&response={secret_response}").json()
 
 
-        if verify_response['success'] == False or verify_response['score'] < 0.5:
-            abort(401)
+        # if verify_response['success'] == False or verify_response['score'] < 0.5:
+        #     abort(401)
 
         email = request.form.get('email')
         password = request.form.get('password')
@@ -136,7 +136,7 @@ def login():
         else:
             flash('Email does not exist.', category='error')
 
-    return render_template("login.html", user=current_user, site_key=create_app().config['RECAPTCHA_SITE_KEY'])
+    return render_template("login.html", user=current_user)
 
 
 

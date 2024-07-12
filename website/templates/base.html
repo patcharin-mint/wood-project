@@ -32,7 +32,7 @@
         <div class="navbar-nav">
           {% if user.is_authenticated %}
           <a class="nav-item nav-link" id="home" href="/">Home</a>
-          <a class="nav-item nav-link" id="community" href="/community">Community</a>
+          <!-- <a class="nav-item nav-link" id="community" href="/community">Community</a> -->
           <a class="nav-item nav-link" id="woods-info" href="/woods-info">Woods Information</a>
           <a class="nav-item nav-link" id="predict" href="/wood-identification">Identification</a>
           <a class="nav-item nav-link" id="predict-history" href="/prediction-history">Prediction-history</a>
@@ -40,15 +40,15 @@
           <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
           {% else %}
           <a class="nav-item nav-link" id="home" href="/">Home</a>
-          <a class="nav-item nav-link" id="community" href="/community">Community</a>
+          <!-- <a class="nav-item nav-link" id="community" href="/community">Community</a> -->
           <a class="nav-item nav-link" id="woods-info" href="/woods-info">Woods Information</a>
           <a class="nav-item nav-link" id="predict" href="/wood-identification">Identification</a>
           <a class="nav-item nav-link" id="login" href="/login">Login</a>
           <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
           {% endif %}
-          {% if user.is_authenticated and user.role.role_name == 'Admin' %}
+          <!-- {% if user.is_authenticated and user.role.role_name == 'Admin' %}
           <a class="nav-item nav-link" id="admin-manage" href="/manage">Admin Manage</a>
-          {% endif %}
+          {% endif %} -->
         </div>
       </div>
     </nav>
